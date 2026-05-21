@@ -1,43 +1,21 @@
 package br.com.fiap.clyvovet.dto;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-
+import java.math.BigDecimal;
 public class ConsultaRequestDTO {
-
-    @NotNull(message = "Data é obrigatória")
-    private LocalDateTime data;
-
-    @NotBlank(message = "Descrição é obrigatória")
-    private String descricao;
-
-    @NotBlank(message = "Veterinário é obrigatório")
-    private String veterinario;
-
-    private String observacoes;
-
-    @NotNull(message = "ID do pet é obrigatório")
-    private Long petId;
-
-    public ConsultaRequestDTO() {}
-
-    public ConsultaRequestDTO(LocalDateTime data, String descricao, String veterinario, String observacoes, Long petId) {
-        this.data = data;
-        this.descricao = descricao;
-        this.veterinario = veterinario;
-        this.observacoes = observacoes;
-        this.petId = petId;
-    }
-
-    public LocalDateTime getData() { return data; }
-    public void setData(LocalDateTime data) { this.data = data; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public String getVeterinario() { return veterinario; }
-    public void setVeterinario(String veterinario) { this.veterinario = veterinario; }
-    public String getObservacoes() { return observacoes; }
-    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
-    public Long getPetId() { return petId; }
-    public void setPetId(Long petId) { this.petId = petId; }
+    @NotNull private LocalDateTime data;
+    @NotBlank private String tipo;
+    @NotBlank private String descricao;
+    @NotNull private BigDecimal valor;
+    @NotBlank private String status;
+    @NotNull private Long petId;
+    @NotNull private Long funcionarioId;
+    public LocalDateTime getData() { return data; } public void setData(LocalDateTime data) { this.data = data; }
+    public String getTipo() { return tipo; } public void setTipo(String tipo) { this.tipo = tipo; }
+    public String getDescricao() { return descricao; } public void setDescricao(String descricao) { this.descricao = descricao; }
+    public BigDecimal getValor() { return valor; } public void setValor(BigDecimal valor) { this.valor = valor; }
+    public String getStatus() { return status; } public void setStatus(String status) { this.status = status; }
+    public Long getPetId() { return petId; } public void setPetId(Long petId) { this.petId = petId; }
+    public Long getFuncionarioId() { return funcionarioId; } public void setFuncionarioId(Long funcionarioId) { this.funcionarioId = funcionarioId; }
 }

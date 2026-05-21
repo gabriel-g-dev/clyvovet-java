@@ -2,7 +2,7 @@ package br.com.fiap.clyvovet.dto;
 
 import java.util.List;
 
-public class TutorResponseDTO {
+public class DonoResponseDTO {
 
     private Long id;
     private String nome;
@@ -10,9 +10,9 @@ public class TutorResponseDTO {
     private String telefone;
     private List<PetResponseDTO> pets;
 
-    public TutorResponseDTO() {}
+    public DonoResponseDTO() {}
 
-    public TutorResponseDTO(Long id, String nome, String email, String telefone, List<PetResponseDTO> pets) {
+    public DonoResponseDTO(Long id, String nome, String email, String telefone, List<PetResponseDTO> pets) {
         this.id = id;
         this.nome = nome;
         this.email = email;

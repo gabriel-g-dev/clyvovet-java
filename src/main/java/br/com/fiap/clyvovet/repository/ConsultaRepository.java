@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
-    List<Consulta> findByVeterinarioContainingIgnoreCase(String veterinario);
+    List<Consulta> findByStatus(String status);
     List<Consulta> findByDataBetween(LocalDateTime inicio, LocalDateTime fim);
     List<Consulta> findByPetId(Long petId);
 }

@@ -1,37 +1,25 @@
 package br.com.fiap.clyvovet.dto;
-
 import java.time.LocalDateTime;
-
+import java.math.BigDecimal;
 public class ConsultaResponseDTO {
-
     private Long id;
     private LocalDateTime data;
+    private String tipo;
     private String descricao;
-    private String veterinario;
-    private String observacoes;
+    private BigDecimal valor;
+    private String status;
     private Long petId;
-
+    private Long funcionarioId;
     public ConsultaResponseDTO() {}
-
-    public ConsultaResponseDTO(Long id, LocalDateTime data, String descricao, String veterinario, String observacoes, Long petId) {
-        this.id = id;
-        this.data = data;
-        this.descricao = descricao;
-        this.veterinario = veterinario;
-        this.observacoes = observacoes;
-        this.petId = petId;
+    public ConsultaResponseDTO(Long id, LocalDateTime data, String tipo, String descricao, BigDecimal valor, String status, Long petId, Long funcionarioId) {
+        this.id = id; this.data = data; this.tipo = tipo; this.descricao = descricao; this.valor = valor; this.status = status; this.petId = petId; this.funcionarioId = funcionarioId;
     }
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public LocalDateTime getData() { return data; }
-    public void setData(LocalDateTime data) { this.data = data; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public String getVeterinario() { return veterinario; }
-    public void setVeterinario(String veterinario) { this.veterinario = veterinario; }
-    public String getObservacoes() { return observacoes; }
-    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
-    public Long getPetId() { return petId; }
-    public void setPetId(Long petId) { this.petId = petId; }
+    public Long getId() { return id; } public void setId(Long id) { this.id = id; }
+    public LocalDateTime getData() { return data; } public void setData(LocalDateTime data) { this.data = data; }
+    public String getTipo() { return tipo; } public void setTipo(String tipo) { this.tipo = tipo; }
+    public String getDescricao() { return descricao; } public void setDescricao(String descricao) { this.descricao = descricao; }
+    public BigDecimal getValor() { return valor; } public void setValor(BigDecimal valor) { this.valor = valor; }
+    public String getStatus() { return status; } public void setStatus(String status) { this.status = status; }
+    public Long getPetId() { return petId; } public void setPetId(Long petId) { this.petId = petId; }
+    public Long getFuncionarioId() { return funcionarioId; } public void setFuncionarioId(Long funcionarioId) { this.funcionarioId = funcionarioId; }
 }

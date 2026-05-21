@@ -3,7 +3,7 @@ package br.com.fiap.clyvovet.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class TutorRequestDTO {
+public class DonoRequestDTO {
 
     @NotBlank(message = "Nome é obrigatório")
     private String nome;
@@ -15,9 +15,9 @@ public class TutorRequestDTO {
     @NotBlank(message = "Telefone é obrigatório")
     private String telefone;
 
-    public TutorRequestDTO() {}
+    public DonoRequestDTO() {}
 
-    public TutorRequestDTO(String nome, String email, String telefone) {
+    public DonoRequestDTO(String nome, String email, String telefone) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;

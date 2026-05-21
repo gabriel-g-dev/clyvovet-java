@@ -35,15 +35,15 @@ public class IntelligenceService {
             int vacinasPendentesProximas = 0;
 
             for (Vacina v : vacinas) {
-                if (!v.isAplicada()) {
-                    if (v.getProximaDose() != null) {
-                        if (v.getProximaDose().isBefore(hoje)) {
+                if ("P".equals(v.getStatus())) {
+                    if (v.getData() != null) {
+                        if (v.getData().isBefore(hoje)) {
                             vacinasAtrasadas++;
                             score -= 15;
-                            recomendacoes.add("⚠️ ALERTA: A vacina '" + v.getNome() + "' está ATRASADA desde " + v.getProximaDose().format(DATE_FORMATTER) + ". Agende a aplicação imediatamente!");
-                        } else if (v.getProximaDose().isBefore(hoje.plusDays(8))) {
+                            recomendacoes.add("⚠️ ALERTA: A vacina '" + v.getNome() + "' está ATRASADA desde " + v.getData().format(DATE_FORMATTER) + ". Agende a aplicação imediatamente!");
+                        } else if (v.getData().isBefore(hoje.plusDays(8))) {
                             vacinasPendentesProximas++;
-                            recomendacoes.add("📅 AVISO PREVENTIVO: A vacina '" + v.getNome() + "' deve ser aplicada nos próximos dias (prevista para " + v.getProximaDose().format(DATE_FORMATTER) + ").");
+                            recomendacoes.add("📅 AVISO PREVENTIVO: A vacina '" + v.getNome() + "' deve ser aplicada nos próximos dias (prevista para " + v.getData().format(DATE_FORMATTER) + ").");
                         }
                     }
                 }
@@ -71,7 +71,7 @@ public class IntelligenceService {
                             ultimaConsultaData = c.getData();
                         }
                     } else {
-                        if (proximaConsulta == null || c.getData().isBefore(proximaConsulta.getData())) {
+                        if ("A".equals(c.getStatus()) && (proximaConsulta == null || c.getData().isBefore(proximaConsulta.getData()))) {
                             proximaConsulta = c;
                         }
                     }
@@ -89,7 +89,7 @@ public class IntelligenceService {
             }
 
             if (proximaConsulta != null) {
-                recomendacoes.add("📅 AGENDA: Há uma consulta agendada para " + proximaConsulta.getData().format(DATETIME_FORMATTER) + " com o(a) Dr(a). " + proximaConsulta.getVeterinario() + ".");
+                recomendacoes.add("📅 AGENDA: Há uma consulta agendada para " + proximaConsulta.getData().format(DATETIME_FORMATTER) + " com o(a) Dr(a). " + proximaConsulta.getFuncionario().getNome() + ".");
             }
         }
 
@@ -102,7 +102,7 @@ public class IntelligenceService {
         if (score >= 85) {
             status = "EXCELENTE";
             if (recomendacoes.stream().noneMatch(r -> r.startsWith("⚠️") || r.startsWith("Nenhuma"))) {
-                recomendacoes.add("🎉 Parabéns! O tutor está prestando um cuidado contínuo, preventivo e inteligente excelente para " + petNome + "!");
+                recomendacoes.add("🎉 Parabéns! O Dono está prestando um cuidado contínuo, preventivo e inteligente excelente para " + petNome + "!");
             }
         } else if (score >= 50) {
             status = "ATENÇÃO";
