@@ -1,0 +1,629 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-05-21T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v8.6.1",
+  "resources": [
+    {
+      "_id": "wrk_clyvovet",
+      "parentId": null,
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "ClyvoVet Java API",
+      "description": "Collection completa para teste da API RESTful ClyvoVet desenvolvida em Spring Boot.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_clyvovet",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "Ambiente Local",
+      "data": {
+        "base_url": "http://localhost:8080"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1716249600000,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_tutores",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "1. Tutores",
+      "description": "Endpoints para gerenciamento de Tutores",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249600000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_tutor_listar",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores?page=0&size=10&sort=nome,asc",
+      "name": "Listar Tutores (Paginado/Ordenado)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249600001,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_buscar_id",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores/1",
+      "name": "Buscar Tutor por ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249600002,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_buscar_email",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores/email/gabriel@email.com",
+      "name": "Buscar Tutor por Email",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249600003,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_pets",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores/1/pets",
+      "name": "Buscar Tutor com Seus Pets",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249600004,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_criar",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores",
+      "name": "Criar Tutor",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Gabriel Garcia\",\n  \"email\": \"gabriel@email.com\",\n  \"telefone\": \"(11) 98888-7777\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249600005,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_atualizar",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores/1",
+      "name": "Atualizar Tutor",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Gabriel Garcia da Silva\",\n  \"email\": \"gabriel.silva@email.com\",\n  \"telefone\": \"(11) 98888-0000\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249600006,
+      "_type": "request"
+    },
+    {
+      "_id": "req_tutor_deletar",
+      "parentId": "fld_tutores",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/tutores/1",
+      "name": "Deletar Tutor",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249600007,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_pets",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "2. Pets",
+      "description": "Endpoints para gerenciamento de Pets",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249500000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_pet_listar",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets?page=0&size=10&sort=nome,asc",
+      "name": "Listar Pets (Paginado/Ordenado)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500001,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_buscar_id",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Buscar Pet por ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500002,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_buscar_especie",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/especie/Cachorro",
+      "name": "Buscar Pets por Espécie",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500003,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_buscar_raca",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/raca/Golden Retriever",
+      "name": "Buscar Pets por Raça",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500004,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_buscar_tutor",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/tutor/1",
+      "name": "Buscar Pets por Tutor",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500005,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_criar",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets",
+      "name": "Criar Pet",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Pipoca\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249500006,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_atualizar",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Atualizar Pet",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Pipoca Junior\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249500007,
+      "_type": "request"
+    },
+    {
+      "_id": "req_pet_deletar",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Deletar Pet",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500008,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_consultas",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "3. Consultas",
+      "description": "Endpoints para gerenciamento de Consultas",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249400000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_consulta_listar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas?page=0&size=10&sort=data,desc",
+      "name": "Listar Consultas (Paginado/Ordenado)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400001,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_buscar_id",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/1",
+      "name": "Buscar Consulta por ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400002,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_buscar_vet",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/veterinario/Dr. Andre",
+      "name": "Buscar Consultas por Veterinário",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400003,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_buscar_periodo",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/periodo?inicio=2026-05-01T00:00:00&fim=2026-05-31T23:59:59",
+      "name": "Buscar Consultas por Período",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400004,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_buscar_pet",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/pet/1",
+      "name": "Buscar Consultas por Pet",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400005,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_criar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas",
+      "name": "Criar Consulta",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-05-22T10:30:00\",\n  \"descricao\": \"Check-up de rotina preventivo\",\n  \"veterinario\": \"Dr. Andre Bellandi\",\n  \"observacoes\": \"Pet está saudável, peso ideal. Recomendado retorno em 6 meses.\",\n  \"petId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249400006,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_atualizar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/1",
+      "name": "Atualizar Consulta",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-05-22T10:30:00\",\n  \"descricao\": \"Check-up e vacinação\",\n  \"veterinario\": \"Dr. Andre Bellandi\",\n  \"observacoes\": \"Atualizado: Administrado vacina de raiva anual.\",\n  \"petId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249400007,
+      "_type": "request"
+    },
+    {
+      "_id": "req_consulta_deletar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/1",
+      "name": "Deletar Consulta",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249400008,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_vacinas",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "4. Vacinas",
+      "description": "Endpoints para gerenciamento de Vacinas",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249300000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_vacina_listar",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas?page=0&size=10&sort=dataAplicacao,desc",
+      "name": "Listar Vacinas (Paginado/Ordenado)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300001,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_buscar_id",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/1",
+      "name": "Buscar Vacina por ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300002,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_buscar_pendentes",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/pendentes",
+      "name": "Buscar Vacinas Pendentes",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300003,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_buscar_nome",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/nome/Antirrábica",
+      "name": "Buscar Vacinas por Nome",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300004,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_buscar_proximas",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/proximas?dias=45",
+      "name": "Buscar Próximas Vacinas (Dias custom)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300005,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_buscar_pet",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/pet/1",
+      "name": "Buscar Vacinas por Pet",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300006,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_criar",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas",
+      "name": "Criar Vacina",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Antirrábica\",\n  \"dataAplicacao\": \"2026-05-20\",\n  \"proximaDose\": \"2027-05-20\",\n  \"aplicada\": true,\n  \"petId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249300007,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_atualizar",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/1",
+      "name": "Atualizar Vacina",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Antirrábica Dose Reforço\",\n  \"dataAplicacao\": \"2026-05-20\",\n  \"proximaDose\": \"2027-05-20\",\n  \"aplicada\": true,\n  \"petId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1716249300008,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vacina_deletar",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/1",
+      "name": "Deletar Vacina",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249300009,
+      "_type": "request"
+    }
+  ]
+}
