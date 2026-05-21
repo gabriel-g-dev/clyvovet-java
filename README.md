@@ -31,6 +31,8 @@ A **ClyvoVet API** resolve o problema crônico de fragmentação na jornada de s
 - **OpenAPI 3.0 (springdoc-openapi)** para documentação de rotas interativas
 - **Global Exception Handler** (`@RestControllerAdvice`) para respostas HTTP coerentes com a maturidade REST
 - **DTOs (Data Transfer Objects)** para encapsular requisições e respostas de forma limpa, evitando loops de serialização recursiva
+- **Spring Scheduler (@Scheduled)** & **Spring Transactions (@Transactional)** para simulação assíncrona diária de rotinas preventivas de saúde do Pet
+- **ClyvoVet Care Intelligence Engine**: Algoritmo analítico de prevenção (Score 0-100 e recomendações inteligentes baseadas em regras de negócio)
 
 ---
 
@@ -66,6 +68,7 @@ src/main/java/br/com/fiap/clyvovet/
 | :--- | :--- | :--- | :--- |
 | **GET** | `/api/pets` | `Pageable` (page, size, sort) | Lista pets com paginação, ordenação e cache. |
 | **GET** | `/api/pets/{id}` | `@PathVariable Long id` | Busca um pet específico por ID (com cache). |
+| **GET** | `/api/pets/{id}/inteligencia-preventiva` | `@PathVariable Long id` | **[INOVAÇÃO]** Retorna análise preventiva de saúde, calculando Score (0-100) e gerando recomendações inteligentes. |
 | **GET** | `/api/pets/especie/{especie}` | `@PathVariable String especie` | Filtra todos os pets da espécie informada (com cache). |
 | **GET** | `/api/pets/raca/{raca}` | `@PathVariable String raca` | Filtra todos os pets da raça informada (com cache). |
 | **GET** | `/api/pets/tutor/{tutorId}` | `@PathVariable Long tutorId` | Lista todos os pets associados a um determinado tutor (com cache). |

@@ -69,7 +69,7 @@ public class ConsultaController {
     }
 
     @PostMapping
-    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet"}, allEntries = true)
+    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<ConsultaResponseDTO> criar(@Valid @RequestBody ConsultaRequestDTO dto) {
         Consulta consulta = mapToEntity(dto);
         Consulta salva = repository.save(consulta);
@@ -77,7 +77,7 @@ public class ConsultaController {
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet"}, allEntries = true)
+    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<ConsultaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody ConsultaRequestDTO dto) {
         if (!repository.existsById(id))
             throw new RuntimeException("Consulta não encontrada");
@@ -88,7 +88,7 @@ public class ConsultaController {
     }
 
     @DeleteMapping("/{id}")
-    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet"}, allEntries = true)
+    @CacheEvict(value = {"consultas", "consulta", "consultasVet", "consultasPeriodo", "consultasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repository.existsById(id))
             throw new RuntimeException("Consulta não encontrada");

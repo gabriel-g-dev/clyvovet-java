@@ -315,6 +315,21 @@
       "_type": "request"
     },
     {
+      "_id": "req_pet_inteligencia_preventiva",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1/inteligencia-preventiva",
+      "name": "Inteligência Preventiva (Diferencial)",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1716249500009,
+      "_type": "request"
+    },
+    {
       "_id": "fld_consultas",
       "parentId": "wrk_clyvovet",
       "modified": 1716249600000,

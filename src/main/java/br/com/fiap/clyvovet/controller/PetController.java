@@ -2,10 +2,12 @@ package br.com.fiap.clyvovet.controller;
 
 import br.com.fiap.clyvovet.dto.PetRequestDTO;
 import br.com.fiap.clyvovet.dto.PetResponseDTO;
+import br.com.fiap.clyvovet.dto.HealthDashboardResponseDTO;
 import br.com.fiap.clyvovet.model.Pet;
 import br.com.fiap.clyvovet.model.Tutor;
 import br.com.fiap.clyvovet.repository.PetRepository;
 import br.com.fiap.clyvovet.repository.TutorRepository;
+import br.com.fiap.clyvovet.service.IntelligenceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,6 +29,9 @@ public class PetController {
     @Autowired
     private TutorRepository tutorRepository;
 
+    @Autowired
+    private IntelligenceService intelligenceService;
+
     @GetMapping
     @Cacheable(value = "pets")
     public Page<PetResponseDTO> listar(Pageable pageable) {
@@ -39,6 +44,14 @@ public class PetController {
         return repository.findById(id)
                 .map(pet -> ResponseEntity.ok(mapToResponseDTO(pet)))
                 .orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+    }
+
+    @GetMapping("/{id}/inteligencia-preventiva")
+    @Cacheable(value = "inteligenciaPreventiva", key = "#id")
+    public ResponseEntity<HealthDashboardResponseDTO> obterInteligenciaPreventiva(@PathVariable Long id) {
+        Pet pet = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+        return ResponseEntity.ok(intelligenceService.calcularInteligenciaPreventiva(pet));
     }
 
     @GetMapping("/especie/{especie}")
@@ -66,7 +79,7 @@ public class PetController {
     }
 
     @PostMapping
-    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<PetResponseDTO> criar(@Valid @RequestBody PetRequestDTO dto) {
         Pet pet = mapToEntity(dto);
         Pet salvo = repository.save(pet);
@@ -74,7 +87,7 @@ public class PetController {
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<PetResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody PetRequestDTO dto) {
         if (!repository.existsById(id))
             throw new RuntimeException("Pet não encontrado");
@@ -85,13 +98,14 @@ public class PetController {
     }
 
     @DeleteMapping("/{id}")
-    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @CacheEvict(value = {"pets", "pet", "petsEspecie", "petsRaca", "petsTutor", "tutores", "tutor", "tutorEmail", "tutorPets", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repository.existsById(id))
             throw new RuntimeException("Pet não encontrado");
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 
     private PetResponseDTO mapToResponseDTO(Pet pet) {
         if (pet == null) return null;

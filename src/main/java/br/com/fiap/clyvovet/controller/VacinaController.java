@@ -76,7 +76,7 @@ public class VacinaController {
     }
 
     @PostMapping
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet"}, allEntries = true)
+    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<VacinaResponseDTO> criar(@Valid @RequestBody VacinaRequestDTO dto) {
         Vacina vacina = mapToEntity(dto);
         Vacina salva = repository.save(vacina);
@@ -84,7 +84,7 @@ public class VacinaController {
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet"}, allEntries = true)
+    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<VacinaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody VacinaRequestDTO dto) {
         if (!repository.existsById(id))
             throw new RuntimeException("Vacina não encontrada");
@@ -95,7 +95,7 @@ public class VacinaController {
     }
 
     @DeleteMapping("/{id}")
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet"}, allEntries = true)
+    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasProximas", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repository.existsById(id))
             throw new RuntimeException("Vacina não encontrada");
