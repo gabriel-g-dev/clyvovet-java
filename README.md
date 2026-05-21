@@ -130,11 +130,11 @@ Uma vez inicializada com sucesso, o console indicará que o Tomcat está rodando
 Disponibilizamos todos os artefatos exigidos pela rubrica na pasta raiz e subpastas:
 
 1. **Testes e Validação de Endpoints**:
-   - O arquivo JSON para importação direta no **Insomnia** contendo todas as 32 requisições prontas e simuladas com corpos HTTP adequados está localizado em: [documents/ClyvoVet_Java_API_Insomnia.json](file:///C:/Users/T-GAMER/clyvovet-java/documents/ClyvoVet_Java_API_Insomnia.json).
+   - O arquivo JSON para importação direta no **Insomnia** contendo todas as 32 requisições prontas e simuladas com corpos HTTP adequados está localizado em: [documents/ClyvoVet_Java_API_Insomnia.json](documents/ClyvoVet_Java_API_Insomnia.json).
 2. **Cronograma de Desenvolvimento**:
-   - A distribuição detalhada de tarefas, responsabilidades e prazos do time está descrita em: [documents/cronograma.md](file:///C:/Users/T-GAMER/clyvovet-java/documents/cronograma.md).
+   - A distribuição detalhada de tarefas, responsabilidades e prazos do time está descrita em: [documents/cronograma.md](documents/cronograma.md).
 3. **Diagramas UML, DER e Arquitetura**:
-   - Os diagramas explicativos de classes, entidade-relacionamento (DER) e desenho macro da arquitetura estão em: [documents/diagramas.md](file:///C:/Users/T-GAMER/clyvovet-java/documents/diagramas.md).
+   - Os diagramas explicativos de classes, entidade-relacionamento (DER) e desenho macro da arquitetura estão em: [documents/diagramas.md](documents/diagramas.md).
 4. **Documentação Swagger Interativa**:
    - Com o servidor rodando localmente, acesse a UI iterativa em: `http://localhost:8080/swagger-ui/index.html`
    - O endpoint da especificação JSON OpenAPI 3.0 está em: `http://localhost:8080/v3/api-docs`

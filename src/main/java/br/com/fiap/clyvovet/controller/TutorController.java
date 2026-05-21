@@ -2,115 +2,116 @@ package br.com.fiap.clyvovet.controller;
 
 import br.com.fiap.clyvovet.dto.TutorRequestDTO;
 import br.com.fiap.clyvovet.dto.TutorResponseDTO;
-import br.com.fiap.clyvovet.dto.PetResponseDTO;
-import br.com.fiap.clyvovet.model.Tutor;
-import br.com.fiap.clyvovet.repository.TutorRepository;
+import br.com.fiap.clyvovet.service.TutorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/tutores")
+@Tag(name = "Tutores", description = "Endpoints para gerenciamento do cadastro de tutores de pets")
 public class TutorController {
 
-    @Autowired
-    private TutorRepository repository;
+    private final TutorService service;
+
+    public TutorController(TutorService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    @Cacheable(value = "tutores")
+    @Cacheable(value = "tutores", key = "#pageable")
+    @Operation(summary = "Listar todos os tutores", description = "Retorna uma lista paginada de todos os tutores cadastrados no sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Parâmetros de paginação inválidos", content = @Content)
+    })
     public Page<TutorResponseDTO> listar(Pageable pageable) {
-        return repository.findAll(pageable).map(this::mapToResponseDTO);
+        return service.listar(pageable);
     }
 
     @GetMapping("/{id}")
     @Cacheable(value = "tutor", key = "#id")
+    @Operation(summary = "Buscar tutor por ID", description = "Retorna os detalhes de um tutor específico com base no seu ID único.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tutor encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+    })
     public ResponseEntity<TutorResponseDTO> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(tutor -> ResponseEntity.ok(mapToResponseDTO(tutor)))
-                .orElseThrow(() -> new RuntimeException("Tutor não encontrado"));
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @GetMapping("/email/{email}")
     @Cacheable(value = "tutorEmail", key = "#email")
+    @Operation(summary = "Buscar tutor por e-mail", description = "Retorna os detalhes do tutor associado ao e-mail informado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tutor encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+    })
     public ResponseEntity<TutorResponseDTO> buscarPorEmail(@PathVariable String email) {
-        return repository.findByEmail(email)
-                .map(tutor -> ResponseEntity.ok(mapToResponseDTO(tutor)))
-                .orElseThrow(() -> new RuntimeException("Tutor não encontrado"));
+        return ResponseEntity.ok(service.buscarPorEmail(email));
     }
 
     @GetMapping("/{id}/pets")
     @Cacheable(value = "tutorPets", key = "#id")
+    @Operation(summary = "Listar pets do tutor", description = "Retorna os detalhes do tutor juntamente com a lista de todos os seus pets vinculados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de pets retornada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+    })
     public ResponseEntity<TutorResponseDTO> buscarComPets(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(tutor -> ResponseEntity.ok(mapToResponseDTO(tutor)))
-                .orElseThrow(() -> new RuntimeException("Tutor não encontrado"));
+        return ResponseEntity.ok(service.buscarComPets(id));
     }
 
     @PostMapping
     @CacheEvict(value = {"tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @Operation(summary = "Cadastrar novo tutor", description = "Cria um novo tutor no sistema. O e-mail informado deve ser único.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Tutor cadastrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados cadastrais inválidos", content = @Content)
+    })
     public ResponseEntity<TutorResponseDTO> criar(@Valid @RequestBody TutorRequestDTO dto) {
-        Tutor tutor = mapToEntity(dto);
-        Tutor salvo = repository.save(tutor);
-        return ResponseEntity.status(201).body(mapToResponseDTO(salvo));
+        TutorResponseDTO criado = service.criar(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(criado.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(criado);
     }
 
     @PutMapping("/{id}")
     @CacheEvict(value = {"tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @Operation(summary = "Atualizar dados do tutor", description = "Atualiza as informações cadastrais de um tutor existente com base no ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tutor atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de atualização inválidos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+    })
     public ResponseEntity<TutorResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody TutorRequestDTO dto) {
-        if (!repository.existsById(id))
-            throw new RuntimeException("Tutor não encontrado");
-        Tutor tutor = mapToEntity(dto);
-        tutor.setId(id);
-        Tutor salvo = repository.save(tutor);
-        return ResponseEntity.ok(mapToResponseDTO(salvo));
+        return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
     @CacheEvict(value = {"tutores", "tutor", "tutorEmail", "tutorPets"}, allEntries = true)
+    @Operation(summary = "Excluir tutor", description = "Remove o tutor e todos os seus pets, consultas e vacinas associados em cascata.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Tutor removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+    })
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!repository.existsById(id))
-            throw new RuntimeException("Tutor não encontrado");
-        repository.deleteById(id);
+        service.deletar(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private TutorResponseDTO mapToResponseDTO(Tutor tutor) {
-        if (tutor == null) return null;
-        List<PetResponseDTO> petDTOs = null;
-        if (tutor.getPets() != null) {
-            petDTOs = tutor.getPets().stream()
-                    .map(pet -> new PetResponseDTO(
-                            pet.getId(),
-                            pet.getNome(),
-                            pet.getEspecie(),
-                            pet.getRaca(),
-                            pet.getDataNascimento(),
-                            tutor.getId()
-                    ))
-                    .toList();
-        }
-        return new TutorResponseDTO(
-                tutor.getId(),
-                tutor.getNome(),
-                tutor.getEmail(),
-                tutor.getTelefone(),
-                petDTOs
-        );
-    }
-
-    private Tutor mapToEntity(TutorRequestDTO dto) {
-        if (dto == null) return null;
-        Tutor tutor = new Tutor();
-        tutor.setNome(dto.getNome());
-        tutor.setEmail(dto.getEmail());
-        tutor.setTelefone(dto.getTelefone());
-        return tutor;
     }
 }
