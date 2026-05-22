@@ -70,10 +70,10 @@ public class PetController {
                 .toList();
     }
 
-    @GetMapping("/Dono/{DonoId}")
-    @Cacheable(value = "petsDono", key = "#DonoId")
-    public List<PetResponseDTO> buscarPorDono(@PathVariable Long DonoId) {
-        return repository.findByDonoId(DonoId).stream()
+    @GetMapping("/tutor/{tutorId}")
+    @Cacheable(value = "petsDono", key = "#tutorId")
+    public List<PetResponseDTO> buscarPorDono(@PathVariable("tutorId") Long tutorId) {
+        return repository.findByDonoId(tutorId).stream()
                 .map(this::mapToResponseDTO)
                 .toList();
     }
