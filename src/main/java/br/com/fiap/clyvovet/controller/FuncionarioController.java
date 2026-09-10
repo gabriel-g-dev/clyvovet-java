@@ -1,5 +1,7 @@
 package br.com.fiap.clyvovet.controller;
 
+import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
+
 import br.com.fiap.clyvovet.dto.FuncionarioRequestDTO;
 import br.com.fiap.clyvovet.dto.FuncionarioResponseDTO;
 import br.com.fiap.clyvovet.model.Funcionario;
@@ -27,7 +29,7 @@ public class FuncionarioController {
     public ResponseEntity<FuncionarioResponseDTO> buscarPorId(@PathVariable Long id) {
         return repository.findById(id)
                 .map(func -> ResponseEntity.ok(mapToResponseDTO(func)))
-                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Funcionário não encontrado"));
     }
 
     @GetMapping("/setor/{setor}")
@@ -44,7 +46,7 @@ public class FuncionarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<FuncionarioResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequestDTO dto) {
-        if (!repository.existsById(id)) throw new RuntimeException("Funcionário não encontrado");
+        if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Funcionário não encontrado");
         Funcionario func = mapToEntity(dto);
         func.setId(id);
         return ResponseEntity.ok(mapToResponseDTO(repository.save(func)));
@@ -52,7 +54,7 @@ public class FuncionarioController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!repository.existsById(id)) throw new RuntimeException("Funcionário não encontrado");
+        if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Funcionário não encontrado");
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

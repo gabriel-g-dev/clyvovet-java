@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+</head>
+<body>
+
+<nav th:replace="~{fragmentos :: cabecalho('dashboard')}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <h1>Dashboard</h1>
+    <p class="subtitulo">Visão geral do acompanhamento preventivo da clínica.</p>
+
+    <div class="cartoes">
+        <div class="cartao">
+            <p class="rotulo">Pets acompanhados</p>
+            <p class="numero" th:text="${totalPets}">0</p>
+        </div>
+        <div class="cartao">
+            <p class="rotulo">Vacinas pendentes</p>
+            <p class="numero numero-alerta" th:text="${totalPendentes}">0</p>
+        </div>
+    </div>
+
+    <h2>Calendário vacinal por pet</h2>
+
+    <div th:if="${#lists.isEmpty(pets)}" class="aviso aviso-vazio">
+        Nenhum pet cadastrado ainda.
+    </div>
+
+    <div class="painel" th:unless="${#lists.isEmpty(pets)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Pet</th>
+                <th>Espécie</th>
+                <th>Idade</th>
+                <th>Tutor</th>
+                <th>Calendário vacinal</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pet : ${pets}">
+                <td><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
+                <td th:text="${pet.especie}">Cachorro</td>
+                <td th:text="${pet.idade}">3 anos</td>
+                <td th:text="${pet.tutorNome}">Gabriel</td>
+                <td>
+                    <span th:if="${#lists.isEmpty(pet.vacinas)}" class="subtitulo">sem registros</span>
+                    <div th:each="v : ${pet.vacinas}" style="margin-bottom:5px">
+                        <span th:replace="~{fragmentos :: selo(${v.status})}"></span>
+                        <span th:text="${v.nome}">Antirrábica</span>
+                        <span class="subtitulo" th:text="'· ' + ${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="rodape-links">
+        <a th:href="@{/swagger-ui.html}">Swagger UI</a> ·
+        <a th:href="@{/h2-console}">Console H2</a>
+    </p>
+</main>
+
+</body>
+</html>

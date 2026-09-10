@@ -1,15 +1,16 @@
 package br.com.fiap.clyvovet.controller;
 
+import br.com.fiap.clyvovet.dto.AplicacaoVacinaRequestDTO;
+import br.com.fiap.clyvovet.dto.BaixaVacinaResponseDTO;
 import br.com.fiap.clyvovet.dto.VacinaRequestDTO;
 import br.com.fiap.clyvovet.dto.VacinaResponseDTO;
-import br.com.fiap.clyvovet.model.Pet;
-import br.com.fiap.clyvovet.model.Vacina;
-import br.com.fiap.clyvovet.repository.PetRepository;
-import br.com.fiap.clyvovet.repository.VacinaRepository;
+import br.com.fiap.clyvovet.service.BaixaVacinaResultado;
+import br.com.fiap.clyvovet.service.BaixaVacinaService;
+import br.com.fiap.clyvovet.service.VacinaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -20,103 +21,78 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/vacinas")
+@Tag(name = "Vacinas", description = "Calendário vacinal e baixa de aplicação")
 public class VacinaController {
 
-    @Autowired
-    private VacinaRepository repository;
+    private final VacinaService vacinaService;
+    private final BaixaVacinaService baixaVacinaService;
 
-    @Autowired
-    private PetRepository petRepository;
+    public VacinaController(VacinaService vacinaService, BaixaVacinaService baixaVacinaService) {
+        this.vacinaService = vacinaService;
+        this.baixaVacinaService = baixaVacinaService;
+    }
 
     @GetMapping
-    @Cacheable(value = "vacinas")
     public Page<VacinaResponseDTO> listar(Pageable pageable) {
-        return repository.findAll(pageable).map(this::mapToResponseDTO);
+        return vacinaService.listar(pageable);
     }
 
     @GetMapping("/{id}")
-    @Cacheable(value = "vacina", key = "#id")
     public ResponseEntity<VacinaResponseDTO> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(vacina -> ResponseEntity.ok(mapToResponseDTO(vacina)))
-                .orElseThrow(() -> new RuntimeException("Vacina não encontrada"));
+        return ResponseEntity.ok(vacinaService.buscarPorId(id));
     }
 
     @GetMapping("/pendentes")
-    @Cacheable(value = "vacinasPendentes")
     public List<VacinaResponseDTO> buscarPendentes() {
-        return repository.findByStatus("P").stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        return vacinaService.buscarPendentes();
     }
 
     @GetMapping("/nome/{nome}")
-    @Cacheable(value = "vacinasNome", key = "#nome")
     public List<VacinaResponseDTO> buscarPorNome(@PathVariable String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome).stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        return vacinaService.buscarPorNome(nome);
     }
 
     @GetMapping("/pet/{petId}")
-    @Cacheable(value = "vacinasPet", key = "#petId")
     public List<VacinaResponseDTO> buscarPorPet(@PathVariable Long petId) {
-        return repository.findByPetId(petId).stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        return vacinaService.buscarPorPet(petId);
+    }
+
+    @PostMapping("/{id}/aplicar")
+    @Operation(summary = "Registra a aplicação da vacina e agenda automaticamente a próxima dose")
+    @CacheEvict(value = "inteligenciaPreventiva", allEntries = true)
+    public ResponseEntity<BaixaVacinaResponseDTO> aplicar(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) AplicacaoVacinaRequestDTO dto) {
+
+        LocalDate dataAplicacao = dto != null ? dto.getDataAplicacao() : null;
+        BaixaVacinaResultado resultado = baixaVacinaService.aplicar(id, dataAplicacao);
+
+        String mensagem = resultado.temProximaDose()
+                ? "Vacina aplicada e próxima dose agendada automaticamente"
+                : "Vacina aplicada. Esta vacina não possui intervalo de reforço cadastrado";
+
+        BaixaVacinaResponseDTO resposta = new BaixaVacinaResponseDTO(
+                mensagem,
+                vacinaService.paraResposta(resultado.aplicada()),
+                vacinaService.paraResposta(resultado.proximaDose()));
+
+        return ResponseEntity.ok(resposta);
     }
 
     @PostMapping
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<VacinaResponseDTO> criar(@Valid @RequestBody VacinaRequestDTO dto) {
-        Vacina vacina = mapToEntity(dto);
-        Vacina salva = repository.save(vacina);
-        return ResponseEntity.status(201).body(mapToResponseDTO(salva));
+        return ResponseEntity.status(201).body(vacinaService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
-    public ResponseEntity<VacinaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody VacinaRequestDTO dto) {
-        if (!repository.existsById(id))
-            throw new RuntimeException("Vacina não encontrada");
-        Vacina vacina = mapToEntity(dto);
-        vacina.setId(id);
-        Vacina salva = repository.save(vacina);
-        return ResponseEntity.ok(mapToResponseDTO(salva));
+    public ResponseEntity<VacinaResponseDTO> atualizar(@PathVariable Long id,
+                                                       @Valid @RequestBody VacinaRequestDTO dto) {
+        return ResponseEntity.ok(vacinaService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @CacheEvict(value = {"vacinas", "vacina", "vacinasPendentes", "vacinasNome", "vacinasPet", "inteligenciaPreventiva"}, allEntries = true)
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!repository.existsById(id))
-            throw new RuntimeException("Vacina não encontrada");
-        repository.deleteById(id);
+        vacinaService.excluir(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private VacinaResponseDTO mapToResponseDTO(Vacina vacina) {
-        if (vacina == null) return null;
-        return new VacinaResponseDTO(
-                vacina.getId(),
-                vacina.getNome(),
-                vacina.getData(),
-                vacina.getStatus(),
-                vacina.getPet() != null ? vacina.getPet().getId() : null
-        );
-    }
-
-    private Vacina mapToEntity(VacinaRequestDTO dto) {
-        if (dto == null) return null;
-        Vacina vacina = new Vacina();
-        vacina.setNome(dto.getNome());
-        vacina.setData(dto.getDataAplicacao());
-        vacina.setStatus(dto.getStatus() == null ? "P" : dto.getStatus());
-
-        if (dto.getPetId() != null) {
-            Pet pet = petRepository.findById(dto.getPetId())
-                    .orElseThrow(() -> new RuntimeException("Pet não encontrado com o ID informado"));
-            vacina.setPet(pet);
-        }
-        return vacina;
     }
 }

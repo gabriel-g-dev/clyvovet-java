@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Cadastrar pet</title>
+    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+</head>
+<body>
+
+<nav th:replace="~{fragmentos :: cabecalho('novo')}"></nav>
+
+<main class="container" style="max-width:640px">
+    <h1>Cadastrar pet</h1>
+    <p class="subtitulo">O pet passa a ser acompanhado pelo motor de prevenção assim que é cadastrado.</p>
+
+    <div class="painel">
+        <div class="painel-corpo">
+            <form th:action="@{/pets/salvar}" th:object="${pet}" method="post">
+
+                <div class="campo">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" th:field="*{nome}" maxlength="50"
+                           th:classappend="${#fields.hasErrors('nome')} ? 'invalido'">
+                    <span class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+                </div>
+
+                <div class="campo">
+                    <label for="especie">Espécie</label>
+                    <input type="text" id="especie" th:field="*{especie}" maxlength="50"
+                           placeholder="Cachorro, Gato..."
+                           th:classappend="${#fields.hasErrors('especie')} ? 'invalido'">
+                    <span class="erro-campo" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></span>
+                </div>
+
+                <div class="campo">
+                    <label for="raca">Raça</label>
+                    <input type="text" id="raca" th:field="*{raca}" maxlength="50"
+                           th:classappend="${#fields.hasErrors('raca')} ? 'invalido'">
+                    <span class="erro-campo" th:if="${#fields.hasErrors('raca')}" th:errors="*{raca}"></span>
+                </div>
+
+                <div class="campo">
+                    <label for="dataNascimento">Data de nascimento</label>
+                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}"
+                           th:classappend="${#fields.hasErrors('dataNascimento')} ? 'invalido'">
+                    <span class="erro-campo" th:if="${#fields.hasErrors('dataNascimento')}"
+                          th:errors="*{dataNascimento}"></span>
+                </div>
+
+                <div class="campo">
+                    <label for="peso">Peso (kg)</label>
+                    <input type="number" id="peso" th:field="*{peso}" step="0.01" min="0.01" max="999.99"
+                           th:classappend="${#fields.hasErrors('peso')} ? 'invalido'">
+                    <span class="erro-campo" th:if="${#fields.hasErrors('peso')}" th:errors="*{peso}"></span>
+                </div>
+
+                <div class="campo">
+                    <label for="tutorId">Tutor responsável</label>
+                    <select id="tutorId" th:field="*{tutorId}"
+                            th:classappend="${#fields.hasErrors('tutorId')} ? 'invalido'">
+                        <option value="">Selecione o tutor</option>
+                        <option th:each="tutor : ${tutores}"
+                                th:value="${tutor.id}" th:text="${tutor.nome}">Tutor</option>
+                    </select>
+                    <span class="erro-campo" th:if="${#fields.hasErrors('tutorId')}" th:errors="*{tutorId}"></span>
+                </div>
+
+                <button class="btn" type="submit">Cadastrar pet</button>
+                <a class="btn btn-secundario" th:href="@{/pets}"
+                   style="text-decoration:none; display:inline-block">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Pets</title>
+    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+</head>
+<body>
+
+<nav th:replace="~{fragmentos :: cabecalho('pets')}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <h1>Pets</h1>
+    <p class="subtitulo">Clique em um pet para ver a análise preventiva e dar baixa nas vacinas.</p>
+
+    <div th:if="${#lists.isEmpty(pets)}" class="aviso aviso-vazio">
+        Nenhum pet cadastrado ainda.
+    </div>
+
+    <div class="painel" th:unless="${#lists.isEmpty(pets)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Pet</th>
+                <th>Espécie</th>
+                <th>Raça</th>
+                <th>Idade</th>
+                <th>Tutor</th>
+                <th>Pendências</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pet : ${pets}">
+                <td><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
+                <td th:text="${pet.especie}">Cachorro</td>
+                <td th:text="${pet.raca}">Golden</td>
+                <td th:text="${pet.idade}">3 anos</td>
+                <td th:text="${pet.tutorNome}">Gabriel</td>
+                <td>
+                    <span th:if="${pet.vacinasPendentes > 0}" class="selo selo-pendente"
+                          th:text="${pet.vacinasPendentes} + ' vacina(s)'">2 vacina(s)</span>
+                    <span th:if="${pet.vacinasPendentes == 0}" class="selo selo-ok">em dia</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="rodape-links" sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/pets/novo}">+ Cadastrar novo pet</a>
+    </p>
+</main>
+
+</body>
+</html>

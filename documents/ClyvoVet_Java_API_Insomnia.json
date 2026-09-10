@@ -1,8 +1,8 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2026-05-21T00:00:00.000Z",
-  "__export_source": "insomnia.desktop.app:v8.6.1",
+  "__export_date": "2026-09-07T00:00:00.000Z",
+  "__export_source": "clyvovet.java.api",
   "resources": [
     {
       "_id": "wrk_clyvovet",
@@ -10,7 +10,7 @@
       "modified": 1716249600000,
       "created": 1716249600000,
       "name": "ClyvoVet Java API",
-      "description": "Collection completa para teste da API RESTful ClyvoVet desenvolvida em Spring Boot.",
+      "description": "API REST do ClyvoVet (Spring Boot). Rode 'Login ADMIN' primeiro: copie o token da resposta para a variavel de ambiente 'token'.",
       "scope": "collection",
       "_type": "workspace"
     },
@@ -21,11 +21,13 @@
       "created": 1716249600000,
       "name": "Ambiente Local",
       "data": {
-        "base_url": "http://localhost:8080"
+        "base_url": "http://localhost:8080",
+        "token": ""
       },
       "dataPropertyOrder": {
         "&": [
-          "base_url"
+          "base_url",
+          "token"
         ]
       },
       "color": null,
@@ -34,136 +36,468 @@
       "_type": "environment"
     },
     {
-      "_id": "fld_tutores",
+      "_id": "fld_auth",
       "parentId": "wrk_clyvovet",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "name": "1. Tutores",
-      "description": "Endpoints para gerenciamento de Tutores",
+      "name": "0. Autenticacao",
+      "description": "Login e emissao do token JWT",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": -1716249600000,
       "_type": "request_group"
     },
     {
-      "_id": "req_tutor_listar",
+      "_id": "req_login_admin",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/login",
+      "name": "Login ADMIN (equipe da clinica)",
+      "description": "Perfil da clinica: enxerga todos os pets e cuida do cadastro interno.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@clyvovet.com.br\",\n  \"senha\": \"admin123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_tutor",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/login",
+      "name": "Login TUTOR (dono do pet)",
+      "description": "Perfil de tutor: CRUD dos proprios pets e consultas, leitura do calendario vacinal.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"gabriel@clyvovet.com.br\",\n  \"senha\": \"tutor123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_invalido",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/login",
+      "name": "Login invalido (401)",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@clyvovet.com.br\",\n  \"senha\": \"senha-errada\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_me",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/me",
+      "name": "Perfil do usuario logado (/me)",
+      "description": "Devolve email, role e — para o tutor — tutorId, nome e telefone. E daqui que um cliente monta a tela de perfil, sem precisar da lista de tutores.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_fluxos",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "1. Fluxos de negocio (nao-CRUD)",
+      "description": "Os dois fluxos completos exigidos pela rubrica",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249500000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_inteligencia",
+      "parentId": "fld_fluxos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1/inteligencia-preventiva",
+      "name": "Fluxo 1 - Inteligencia preventiva do pet",
+      "description": "Cruza calendario vacinal e historico de consultas e devolve score 0-100 com recomendacoes.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_aplicar",
+      "parentId": "fld_fluxos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/2/aplicar",
+      "name": "Fluxo 2 - Aplicar vacina (agenda o reforco)",
+      "description": "Da baixa na vacina e cria automaticamente a proxima dose. Sem corpo, usa a data de hoje.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"dataAplicacao\": \"2026-09-07\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_aplicar_repetido",
+      "parentId": "fld_fluxos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/2/aplicar",
+      "name": "Fluxo 2 - Reaplicar a mesma vacina (409)",
+      "description": "Regra de negocio: vacina ja aplicada devolve 409 Conflict.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_tutores",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "2. Tutores",
+      "description": "Cadastro de tutores mantido pela clinica. O tutor ve o proprio cadastro em /api/auth/me.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249400000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_tutores_listar",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/tutores?page=0&size=10&sort=nome,asc",
-      "name": "Listar Tutores (Paginado/Ordenado)",
+      "name": "Listar tutores (403 para TUTOR)",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249600001,
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_buscar_id",
+      "_id": "req_tutores_id",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/tutores/1",
-      "name": "Buscar Tutor por ID",
+      "name": "Buscar por ID",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249600002,
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_buscar_email",
+      "_id": "req_tutores_email",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/tutores/email/gabriel@email.com",
-      "name": "Buscar Tutor por Email",
+      "url": "{{ base_url }}/api/tutores/email/gabriel@clyvovet.com.br",
+      "name": "Buscar por e-mail",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249600003,
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_pets",
+      "_id": "req_tutores_pets",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/tutores/1/pets",
-      "name": "Buscar Tutor com Seus Pets",
+      "name": "Pets do tutor",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249600004,
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_criar",
+      "_id": "req_tutores_criar",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/tutores",
-      "name": "Criar Tutor",
+      "name": "Criar tutor (ADMIN)",
+      "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Gabriel Garcia\",\n  \"email\": \"gabriel@email.com\",\n  \"telefone\": \"(11) 98888-7777\"\n}"
+        "text": "{\n  \"nome\": \"Ana Ribeiro\",\n  \"email\": \"ana@clyvovet.com.br\",\n  \"telefone\": \"(11) 98888-7777\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249600005,
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_atualizar",
+      "_id": "req_tutores_atualizar",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/tutores/1",
-      "name": "Atualizar Tutor",
+      "name": "Atualizar tutor (ADMIN)",
+      "description": "",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Gabriel Garcia da Silva\",\n  \"email\": \"gabriel.silva@email.com\",\n  \"telefone\": \"(11) 98888-0000\"\n}"
+        "text": "{\n  \"nome\": \"Gabriel Oliveira\",\n  \"email\": \"gabriel@clyvovet.com.br\",\n  \"telefone\": \"(11) 98877-0000\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249600006,
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_tutor_deletar",
+      "_id": "req_tutores_excluir",
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/tutores/1",
-      "name": "Deletar Tutor",
+      "url": "{{ base_url }}/api/tutores/3",
+      "name": "Excluir tutor (ADMIN)",
+      "description": "",
       "method": "DELETE",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249600007,
+      "metaSortKey": -94,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
@@ -171,310 +505,284 @@
       "parentId": "wrk_clyvovet",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "name": "2. Pets",
-      "description": "Endpoints para gerenciamento de Pets",
+      "name": "3. Pets",
+      "description": "Cadastro de pets",
       "environment": {},
       "environmentPropertyOrder": null,
-      "metaSortKey": -1716249500000,
+      "metaSortKey": -1716249300000,
       "_type": "request_group"
     },
     {
-      "_id": "req_pet_listar",
+      "_id": "req_pets_listar",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets?page=0&size=10&sort=nome,asc",
-      "name": "Listar Pets (Paginado/Ordenado)",
+      "name": "Listar (paginado)",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249500001,
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_buscar_id",
+      "_id": "req_pets_id",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets/1",
-      "name": "Buscar Pet por ID",
+      "name": "Buscar por ID",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249500002,
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_buscar_especie",
+      "_id": "req_pets_especie",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets/especie/Cachorro",
-      "name": "Buscar Pets por Espécie",
+      "name": "Filtrar por especie",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249500003,
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_buscar_raca",
+      "_id": "req_pets_raca",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets/raca/Golden Retriever",
-      "name": "Buscar Pets por Raça",
+      "name": "Filtrar por raca",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249500004,
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_buscar_tutor",
+      "_id": "req_pets_tutor",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets/tutor/1",
-      "name": "Buscar Pets por Tutor",
+      "name": "Pets de um tutor",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249500005,
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_criar",
+      "_id": "req_pets_criar",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets",
-      "name": "Criar Pet",
+      "name": "Criar pet (ADMIN)",
+      "description": "Datas em ISO-8601 (aaaa-MM-dd).",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Pipoca\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"tutorId\": 1\n}"
+        "text": "{\n  \"nome\": \"Pipoca\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"peso\": 24.3,\n  \"tutorId\": 1\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249500006,
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_atualizar",
+      "_id": "req_pets_invalido",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets",
+      "name": "Criar pet invalido (400)",
+      "description": "Demonstra a Bean Validation: a resposta lista o erro de cada campo.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"\",\n  \"especie\": \"\",\n  \"raca\": \"\",\n  \"dataNascimento\": \"2030-01-01\",\n  \"peso\": -1,\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -94,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_pets_atualizar",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets/1",
-      "name": "Atualizar Pet",
+      "name": "Atualizar pet (ADMIN)",
+      "description": "",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Pipoca Junior\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"tutorId\": 1\n}"
+        "text": "{\n  \"nome\": \"Rex\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Golden Retriever\",\n  \"dataNascimento\": \"2023-05-15\",\n  \"peso\": 28.5,\n  \"tutorId\": 1\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249500007,
+      "metaSortKey": -93,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_pet_deletar",
+      "_id": "req_pets_excluir",
       "parentId": "fld_pets",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/pets/1",
-      "name": "Deletar Pet",
+      "url": "{{ base_url }}/api/pets/3",
+      "name": "Excluir pet (ADMIN)",
+      "description": "",
       "method": "DELETE",
       "body": {},
       "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249500008,
-      "_type": "request"
-    },
-    {
-      "_id": "req_pet_inteligencia_preventiva",
-      "parentId": "fld_pets",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/pets/1/inteligencia-preventiva",
-      "name": "Inteligência Preventiva (Diferencial)",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249500009,
-      "_type": "request"
-    },
-    {
-      "_id": "fld_consultas",
-      "parentId": "wrk_clyvovet",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "name": "3. Consultas",
-      "description": "Endpoints para gerenciamento de Consultas",
-      "environment": {},
-      "environmentPropertyOrder": null,
-      "metaSortKey": -1716249400000,
-      "_type": "request_group"
-    },
-    {
-      "_id": "req_consulta_listar",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas?page=0&size=10&sort=data,desc",
-      "name": "Listar Consultas (Paginado/Ordenado)",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400001,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_buscar_id",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/1",
-      "name": "Buscar Consulta por ID",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400002,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_buscar_vet",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/veterinario/Dr. Andre",
-      "name": "Buscar Consultas por Veterinário",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400003,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_buscar_periodo",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/periodo?inicio=2026-05-01T00:00:00&fim=2026-05-31T23:59:59",
-      "name": "Buscar Consultas por Período",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400004,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_buscar_pet",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/pet/1",
-      "name": "Buscar Consultas por Pet",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400005,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_criar",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas",
-      "name": "Criar Consulta",
-      "method": "POST",
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"data\": \"2026-05-22T10:30:00\",\n  \"descricao\": \"Check-up de rotina preventivo\",\n  \"veterinario\": \"Dr. Andre Bellandi\",\n  \"observacoes\": \"Pet está saudável, peso ideal. Recomendado retorno em 6 meses.\",\n  \"petId\": 1\n}"
-      },
-      "parameters": [],
       "headers": [
         {
-          "name": "Content-Type",
-          "value": "application/json"
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249400006,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_atualizar",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/1",
-      "name": "Atualizar Consulta",
-      "method": "PUT",
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"data\": \"2026-05-22T10:30:00\",\n  \"descricao\": \"Check-up e vacinação\",\n  \"veterinario\": \"Dr. Andre Bellandi\",\n  \"observacoes\": \"Atualizado: Administrado vacina de raiva anual.\",\n  \"petId\": 1\n}"
-      },
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {},
-      "metaSortKey": -1716249400007,
-      "_type": "request"
-    },
-    {
-      "_id": "req_consulta_deletar",
-      "parentId": "fld_consultas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/consultas/1",
-      "name": "Deletar Consulta",
-      "method": "DELETE",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249400008,
+      "metaSortKey": -92,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
@@ -483,136 +791,706 @@
       "modified": 1716249600000,
       "created": 1716249600000,
       "name": "4. Vacinas",
-      "description": "Endpoints para gerenciamento de Vacinas",
+      "description": "Calendario vacinal",
       "environment": {},
       "environmentPropertyOrder": null,
-      "metaSortKey": -1716249300000,
+      "metaSortKey": -1716249200000,
       "_type": "request_group"
     },
     {
-      "_id": "req_vacina_listar",
+      "_id": "req_vac_listar",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/vacinas?page=0&size=10&sort=dataAplicacao,desc",
-      "name": "Listar Vacinas (Paginado/Ordenado)",
+      "url": "{{ base_url }}/api/vacinas?page=0&size=10&sort=data,desc",
+      "name": "Listar (paginado)",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300001,
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_buscar_id",
+      "_id": "req_vac_id",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/vacinas/1",
-      "name": "Buscar Vacina por ID",
+      "name": "Buscar por ID",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300002,
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_buscar_pendentes",
+      "_id": "req_vac_pendentes",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/vacinas/pendentes",
-      "name": "Buscar Vacinas Pendentes",
+      "name": "Vacinas pendentes",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300003,
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_buscar_nome",
+      "_id": "req_vac_nome",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/vacinas/nome/Antirrábica",
-      "name": "Buscar Vacinas por Nome",
+      "url": "{{ base_url }}/api/vacinas/nome/Antirrabica",
+      "name": "Buscar por nome",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300004,
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_buscar_proximas",
-      "parentId": "fld_vacinas",
-      "modified": 1716249600000,
-      "created": 1716249600000,
-      "url": "{{ base_url }}/api/vacinas/proximas?dias=45",
-      "name": "Buscar Próximas Vacinas (Dias custom)",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1716249300005,
-      "_type": "request"
-    },
-    {
-      "_id": "req_vacina_buscar_pet",
+      "_id": "req_vac_pet",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/vacinas/pet/1",
-      "name": "Buscar Vacinas por Pet",
+      "name": "Cartao vacinal do pet",
+      "description": "",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300006,
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_criar",
+      "_id": "req_vac_criar",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/vacinas",
-      "name": "Criar Vacina",
+      "name": "Criar vacina (ADMIN)",
+      "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Antirrábica\",\n  \"dataAplicacao\": \"2026-05-20\",\n  \"proximaDose\": \"2027-05-20\",\n  \"aplicada\": true,\n  \"petId\": 1\n}"
+        "text": "{\n  \"nome\": \"Leishmaniose\",\n  \"dataAplicacao\": \"2026-10-01\",\n  \"status\": \"P\",\n  \"intervaloReforcoDias\": 365,\n  \"petId\": 1\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249300007,
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_atualizar",
+      "_id": "req_vac_atualizar",
       "parentId": "fld_vacinas",
       "modified": 1716249600000,
       "created": 1716249600000,
       "url": "{{ base_url }}/api/vacinas/1",
-      "name": "Atualizar Vacina",
+      "name": "Atualizar vacina (ADMIN)",
+      "description": "",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Antirrábica Dose Reforço\",\n  \"dataAplicacao\": \"2026-05-20\",\n  \"proximaDose\": \"2027-05-20\",\n  \"aplicada\": true,\n  \"petId\": 1\n}"
+        "text": "{\n  \"nome\": \"V10 (Polivalente)\",\n  \"dataAplicacao\": \"2025-11-07\",\n  \"status\": \"A\",\n  \"intervaloReforcoDias\": 365,\n  \"petId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -94,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_vac_excluir",
+      "parentId": "fld_vacinas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/vacinas/5",
+      "name": "Excluir vacina (ADMIN)",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -93,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_consultas",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "5. Consultas",
+      "description": "Historico clinico",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249100000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_cons_listar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas?page=0&size=10&sort=data,desc",
+      "name": "Listar (paginado)",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_id",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/1",
+      "name": "Buscar por ID",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_status",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/status/R",
+      "name": "Filtrar por status",
+      "description": "A = agendada, R = realizada, C = cancelada.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_periodo",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/periodo?inicio=2026-01-01T00:00:00&fim=2026-12-31T23:59:59",
+      "name": "Filtrar por periodo",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_pet",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/pet/1",
+      "name": "Consultas de um pet",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_criar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas",
+      "name": "Criar consulta (ADMIN, com valor)",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-10-22T10:30:00\",\n  \"tipo\": \"Rotina\",\n  \"descricao\": \"Check-up anual preventivo\",\n  \"valor\": 180.0,\n  \"status\": \"A\",\n  \"petId\": 1,\n  \"funcionarioId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_atualizar",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/1",
+      "name": "Atualizar consulta (ADMIN)",
+      "description": "",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-10-22T10:30:00\",\n  \"tipo\": \"Retorno\",\n  \"descricao\": \"Retorno para avaliacao do calendario vacinal\",\n  \"valor\": 90.0,\n  \"status\": \"R\",\n  \"petId\": 1,\n  \"funcionarioId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -94,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_excluir",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas/3",
+      "name": "Excluir consulta (ADMIN)",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -93,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_internos",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "6. Cadastro interno da clinica",
+      "description": "Medicamentos e a escrita de funcionarios sao exclusivos do ADMIN. A leitura de funcionarios e liberada para o TUTOR escolher o veterinario no agendamento.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716249000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_func_listar",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/funcionarios",
+      "name": "Listar funcionarios (TUTOR tambem le)",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_func_id",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/funcionarios/1",
+      "name": "Buscar funcionario por ID",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_func_setor",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/funcionarios/setor/Clinica Geral",
+      "name": "Filtrar por setor",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_func_criar",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/funcionarios",
+      "name": "Criar funcionario (403 para TUTOR)",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Dra. Carla Nunes\",\n  \"setor\": \"Clinica Geral\",\n  \"cargo\": \"Veterinaria\",\n  \"email\": \"carla@clyvovet.com.br\",\n  \"telefone\": \"(11) 3344-3030\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_med_listar",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/medicamentos",
+      "name": "Listar medicamentos (403 para TUTOR)",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_med_criar",
+      "parentId": "fld_internos",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/medicamentos",
+      "name": "Criar medicamento",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Antipulgas Bravecto\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_register",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/register",
+      "name": "Cadastrar tutor (publico)",
+      "description": "Cria o login e o cadastro do tutor na mesma transacao. O perfil e sempre ROLE_TUTOR: mandar role no corpo nao muda nada.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Victor Augusto\",\n  \"email\": \"victor@exemplo.com\",\n  \"telefone\": \"(11) 91234-5678\",\n  \"senha\": \"senha123\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -622,22 +1500,347 @@
         }
       ],
       "authentication": {},
-      "metaSortKey": -1716249300008,
+      "metaSortKey": -101,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     },
     {
-      "_id": "req_vacina_deletar",
-      "parentId": "fld_vacinas",
+      "_id": "req_register_dup",
+      "parentId": "fld_auth",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/vacinas/1",
-      "name": "Deletar Vacina",
+      "url": "{{ base_url }}/api/auth/register",
+      "name": "Cadastrar com e-mail repetido (409)",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Outro\",\n  \"email\": \"victor@exemplo.com\",\n  \"telefone\": \"(11) 90000-0000\",\n  \"senha\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_novo",
+      "parentId": "fld_auth",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/auth/login",
+      "name": "Login do tutor cadastrado",
+      "description": "Copie o token da resposta para a variavel de ambiente token.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"victor@exemplo.com\",\n  \"senha\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_pets_criar_tutor",
+      "parentId": "fld_pets",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets",
+      "name": "Criar pet como TUTOR",
+      "description": "Com token de TUTOR o vinculo e forcado para o proprio usuario, entao o tutorId enviado aqui e ignorado.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Thor\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Husky\",\n  \"dataNascimento\": \"2022-03-15\",\n  \"peso\": 30.5,\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -94.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_escopo",
+      "parentId": "wrk_clyvovet",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "name": "7. Escopo do tutor (isolamento)",
+      "description": "Com o token de um TUTOR, estas chamadas mostram que ele nao alcanca o dado de outro tutor. Com o token do ADMIN, todas passam.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1716248900000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_esc_pets",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets",
+      "name": "Meus pets (a lista ja vem filtrada)",
+      "description": "O TUTOR recebe apenas os pets dele; o ADMIN recebe todos.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_esc_pet_outro",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Pet de outro tutor (403 para TUTOR)",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -99,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_esc_editar_outro",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Editar pet de outro tutor (403)",
+      "description": "",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Tentativa\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"SRD\",\n  \"dataNascimento\": \"2020-01-01\",\n  \"peso\": 10.0,\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -98,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_esc_excluir_outro",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/1",
+      "name": "Excluir pet de outro tutor (403)",
+      "description": "",
       "method": "DELETE",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
       "authentication": {},
-      "metaSortKey": -1716249300009,
+      "metaSortKey": -97,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_esc_consulta_outro",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas",
+      "name": "Agendar para pet de outro tutor (403)",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-12-01T10:00:00\",\n  \"tipo\": \"Rotina\",\n  \"descricao\": \"Tentativa\",\n  \"valor\": 100.0,\n  \"status\": \"A\",\n  \"petId\": 1,\n  \"funcionarioId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -96,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_esc_transferir",
+      "parentId": "fld_escopo",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/pets/3",
+      "name": "Tentar transferir o proprio pet para outro tutor",
+      "description": "O tutorId do corpo e ignorado para o perfil TUTOR: a resposta volta com o tutorId do proprio usuario.",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Thor\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Husky\",\n  \"dataNascimento\": \"2022-03-15\",\n  \"peso\": 30.5,\n  \"tutorId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -95,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cons_criar_tutor",
+      "parentId": "fld_consultas",
+      "modified": 1716249600000,
+      "created": 1716249600000,
+      "url": "{{ base_url }}/api/consultas",
+      "name": "Agendar consulta como TUTOR (sem valor)",
+      "description": "Com token de TUTOR o valor e sempre definido pela clinica: a consulta nasce com valor 0, mesmo que o corpo traga outro numero.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"data\": \"2026-12-01T10:00:00\",\n  \"tipo\": \"Rotina\",\n  \"descricao\": \"Check-up preventivo agendado pelo app\",\n  \"status\": \"A\",\n  \"petId\": 1,\n  \"funcionarioId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -94.8,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
       "_type": "request"
     }
   ]

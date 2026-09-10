@@ -1,10 +1,14 @@
 package br.com.fiap.clyvovet.service;
 
 import br.com.fiap.clyvovet.dto.HealthDashboardResponseDTO;
+import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
 import br.com.fiap.clyvovet.model.Consulta;
 import br.com.fiap.clyvovet.model.Pet;
 import br.com.fiap.clyvovet.model.Vacina;
+import br.com.fiap.clyvovet.repository.PetRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,104 +16,182 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Motor de prevenção do ClyvoVet: cruza o calendário vacinal com o histórico
+ * de consultas do pet e devolve um score de 0 a 100 com as recomendações que
+ * o tutor precisa ver.
+ */
 @Service
 public class IntelligenceService {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private static final int DIAS_AVISO_PREVIO = 8;
+    private static final int PENALIDADE_SEM_REGISTRO = 30;
+    private static final int PENALIDADE_VACINA_ATRASADA = 15;
+    private static final int PENALIDADE_CHECKUP_VENCIDO = 20;
+    private static final int SCORE_MINIMO_EXCELENTE = 85;
+    private static final int SCORE_MINIMO_ATENCAO = 50;
+
+    private final PetRepository petRepository;
+
+    public IntelligenceService(PetRepository petRepository) {
+        this.petRepository = petRepository;
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "inteligenciaPreventiva", key = "#petId")
+    public HealthDashboardResponseDTO calcularPorPetId(Long petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Pet não encontrado com o ID " + petId));
+        return calcularInteligenciaPreventiva(pet);
+    }
 
     public HealthDashboardResponseDTO calcularInteligenciaPreventiva(Pet pet) {
-        Long petId = pet.getId();
-        String petNome = pet.getNome();
-        int score = 100;
-        List<String> recomendacoes = new ArrayList<>();
-        LocalDate hoje = LocalDate.now();
+        Analise analise = new Analise();
 
-        // 1. Análise do Calendário Vacinal
+        avaliarCalendarioVacinal(pet, analise);
+        avaliarHistoricoDeConsultas(pet, analise);
+
+        String status = classificarEngajamento(analise);
+        if ("EXCELENTE".equals(status)) {
+            analise.recomendar("🎉 Parabéns! O cuidado preventivo de " + pet.getNome() + " está em dia.");
+        }
+
+        return new HealthDashboardResponseDTO(
+                pet.getId(), pet.getNome(), analise.score(), status, analise.recomendacoes());
+    }
+
+    private void avaliarCalendarioVacinal(Pet pet, Analise analise) {
         List<Vacina> vacinas = pet.getVacinas();
+
         if (vacinas == null || vacinas.isEmpty()) {
-            score -= 30;
-            recomendacoes.add("Nenhuma vacina registrada. É fundamental registrar o cartão vacinal de " + petNome + " para habilitar o monitoramento de imunidade.");
-        } else {
-            int vacinasAtrasadas = 0;
-            int vacinasPendentesProximas = 0;
+            analise.penalizar(PENALIDADE_SEM_REGISTRO);
+            analise.recomendar("Nenhuma vacina registrada. Cadastre o cartão vacinal de " + pet.getNome()
+                    + " para habilitar o monitoramento de imunidade.");
+            return;
+        }
 
-            for (Vacina v : vacinas) {
-                if ("P".equals(v.getStatus())) {
-                    if (v.getData() != null) {
-                        if (v.getData().isBefore(hoje)) {
-                            vacinasAtrasadas++;
-                            score -= 15;
-                            recomendacoes.add("⚠️ ALERTA: A vacina '" + v.getNome() + "' está ATRASADA desde " + v.getData().format(DATE_FORMATTER) + ". Agende a aplicação imediatamente!");
-                        } else if (v.getData().isBefore(hoje.plusDays(8))) {
-                            vacinasPendentesProximas++;
-                            recomendacoes.add("📅 AVISO PREVENTIVO: A vacina '" + v.getNome() + "' deve ser aplicada nos próximos dias (prevista para " + v.getData().format(DATE_FORMATTER) + ").");
-                        }
-                    }
-                }
-            }
+        boolean algumAlerta = false;
 
-            if (vacinasAtrasadas == 0 && vacinasPendentesProximas == 0) {
-                recomendacoes.add("✅ Todas as vacinas cadastradas de " + petNome + " estão em dia.");
+        for (Vacina vacina : vacinas) {
+            if (vacina.estaAtrasada()) {
+                analise.penalizar(PENALIDADE_VACINA_ATRASADA);
+                analise.marcarVacinaAtrasada();
+                analise.recomendar("⚠️ ALERTA: a vacina '" + vacina.getNome() + "' está ATRASADA desde "
+                        + vacina.getData().format(DATA) + ". Agende a aplicação imediatamente.");
+                algumAlerta = true;
+            } else if (vacina.venceEm(DIAS_AVISO_PREVIO)) {
+                analise.recomendar("📅 AVISO PREVENTIVO: a vacina '" + vacina.getNome()
+                        + "' está prevista para " + vacina.getData().format(DATA) + ".");
+                algumAlerta = true;
             }
         }
 
-        // 2. Análise do Histórico de Consultas
+        if (!algumAlerta) {
+            analise.recomendar("✅ Todas as vacinas cadastradas de " + pet.getNome() + " estão em dia.");
+        }
+    }
+
+    private void avaliarHistoricoDeConsultas(Pet pet, Analise analise) {
         List<Consulta> consultas = pet.getConsultas();
+
         if (consultas == null || consultas.isEmpty()) {
-            score -= 30;
-            recomendacoes.add("Nenhuma consulta registrada. Recomendamos agendar uma consulta inicial de rotina para avaliação geral de " + petNome + ".");
-        } else {
-            LocalDateTime agora = LocalDateTime.now();
-            LocalDateTime ultimaConsultaData = null;
-            Consulta proximaConsulta = null;
+            analise.penalizar(PENALIDADE_SEM_REGISTRO);
+            analise.recomendar("Nenhuma consulta registrada. Agende uma avaliação inicial de rotina para "
+                    + pet.getNome() + ".");
+            return;
+        }
 
-            for (Consulta c : consultas) {
-                if (c.getData() != null) {
-                    if (c.getData().isBefore(agora)) {
-                        if (ultimaConsultaData == null || c.getData().isAfter(ultimaConsultaData)) {
-                            ultimaConsultaData = c.getData();
-                        }
-                    } else {
-                        if ("A".equals(c.getStatus()) && (proximaConsulta == null || c.getData().isBefore(proximaConsulta.getData()))) {
-                            proximaConsulta = c;
-                        }
-                    }
-                }
-            }
-
-            if (ultimaConsultaData != null) {
-                LocalDate ultimaConsultaDataLD = ultimaConsultaData.toLocalDate();
-                if (ultimaConsultaDataLD.isBefore(hoje.minusYears(1))) {
-                    score -= 20;
-                    recomendacoes.add("⚠️ PREVENÇÃO: A última consulta de rotina de " + petNome + " foi em " + ultimaConsultaData.format(DATETIME_FORMATTER) + " (há mais de 1 ano). Agende um check-up anual preventivo.");
-                } else {
-                    recomendacoes.add("✅ Check-up preventivo de " + petNome + " está recente (última consulta em " + ultimaConsultaData.format(DATETIME_FORMATTER) + ").");
-                }
-            }
-
-            if (proximaConsulta != null) {
-                recomendacoes.add("📅 AGENDA: Há uma consulta agendada para " + proximaConsulta.getData().format(DATETIME_FORMATTER) + " com o(a) Dr(a). " + proximaConsulta.getFuncionario().getNome() + ".");
+        LocalDateTime ultima = ultimaConsultaRealizada(consultas);
+        if (ultima != null) {
+            if (ultima.toLocalDate().isBefore(LocalDate.now().minusYears(1))) {
+                analise.penalizar(PENALIDADE_CHECKUP_VENCIDO);
+                analise.recomendar("⚠️ PREVENÇÃO: a última consulta de " + pet.getNome() + " foi em "
+                        + ultima.format(DATA_HORA) + ", há mais de um ano. Agende o check-up anual.");
+            } else {
+                analise.recomendar("✅ Check-up de " + pet.getNome() + " está recente (última consulta em "
+                        + ultima.format(DATA_HORA) + ").");
             }
         }
 
-        // Normalização do score (min 0, max 100)
-        if (score < 0) score = 0;
-        if (score > 100) score = 100;
+        Consulta proxima = proximaConsultaAgendada(consultas);
+        if (proxima != null) {
+            analise.recomendar("📅 AGENDA: há consulta marcada para " + proxima.getData().format(DATA_HORA)
+                    + " com " + proxima.getFuncionario().getNome() + ".");
+        }
+    }
 
-        // Status de engajamento preventivo
-        String status;
-        if (score >= 85) {
-            status = "EXCELENTE";
-            if (recomendacoes.stream().noneMatch(r -> r.startsWith("⚠️") || r.startsWith("Nenhuma"))) {
-                recomendacoes.add("🎉 Parabéns! O Dono está prestando um cuidado contínuo, preventivo e inteligente excelente para " + petNome + "!");
+    private LocalDateTime ultimaConsultaRealizada(List<Consulta> consultas) {
+        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime ultima = null;
+
+        for (Consulta consulta : consultas) {
+            LocalDateTime data = consulta.getData();
+            if (data != null && data.isBefore(agora) && (ultima == null || data.isAfter(ultima))) {
+                ultima = data;
             }
-        } else if (score >= 50) {
-            status = "ATENÇÃO";
-        } else {
-            status = "CRÍTICO";
+        }
+        return ultima;
+    }
+
+    private Consulta proximaConsultaAgendada(List<Consulta> consultas) {
+        LocalDateTime agora = LocalDateTime.now();
+        Consulta proxima = null;
+
+        for (Consulta consulta : consultas) {
+            LocalDateTime data = consulta.getData();
+            boolean agendadaNoFuturo = data != null && !data.isBefore(agora) && "A".equals(consulta.getStatus());
+            if (agendadaNoFuturo && (proxima == null || data.isBefore(proxima.getData()))) {
+                proxima = consulta;
+            }
+        }
+        return proxima;
+    }
+
+    /**
+     * Vacina atrasada impede o status EXCELENTE mesmo com score alto: um pet
+     * com pendência vencida não pode ser apresentado ao tutor como "em dia".
+     */
+    private String classificarEngajamento(Analise analise) {
+        if (analise.score() < SCORE_MINIMO_ATENCAO) {
+            return "CRÍTICO";
+        }
+        if (analise.temVacinaAtrasada() || analise.score() < SCORE_MINIMO_EXCELENTE) {
+            return "ATENÇÃO";
+        }
+        return "EXCELENTE";
+    }
+
+    private static class Analise {
+
+        private int score = 100;
+        private boolean vacinaAtrasada;
+        private final List<String> recomendacoes = new ArrayList<>();
+
+        void penalizar(int pontos) {
+            score = Math.max(0, score - pontos);
         }
 
-        return new HealthDashboardResponseDTO(petId, petNome, score, status, recomendacoes);
+        void marcarVacinaAtrasada() {
+            vacinaAtrasada = true;
+        }
+
+        void recomendar(String recomendacao) {
+            recomendacoes.add(recomendacao);
+        }
+
+        int score() {
+            return score;
+        }
+
+        boolean temVacinaAtrasada() {
+            return vacinaAtrasada;
+        }
+
+        List<String> recomendacoes() {
+            return recomendacoes;
+        }
     }
 }

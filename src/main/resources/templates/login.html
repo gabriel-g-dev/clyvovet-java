@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Entrar</title>
+    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+</head>
+<body>
+
+<main class="container login-caixa">
+
+    <div class="login-titulo">
+        <h1>🐾 ClyvoVet</h1>
+        <p class="subtitulo">Painel da clínica</p>
+    </div>
+
+    <div class="painel">
+        <div class="painel-corpo">
+
+            <div th:if="${param.erro}" class="aviso aviso-erro">E-mail ou senha inválidos.</div>
+            <div th:if="${param.logout}" class="aviso aviso-ok">Sessão encerrada com sucesso.</div>
+
+            <!-- th:action injeta o campo _csrf exigido pelo Spring Security.
+                 Os names precisam ser username/password: é o que o
+                 UsernamePasswordAuthenticationFilter lê por padrão. -->
+            <form th:action="@{/login}" method="post">
+                <div class="campo">
+                    <label for="username">E-mail</label>
+                    <input type="email" id="username" name="username"
+                           placeholder="admin@clyvovet.com.br" required autofocus>
+                </div>
+
+                <div class="campo">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button class="btn" type="submit" style="width:100%">Entrar</button>
+            </form>
+
+            <div class="credenciais">
+                <p><strong>Usuários de demonstração</strong></p>
+                <p>Clínica: <code>admin@clyvovet.com.br</code> / <code>admin123</code></p>
+                <p>Tutor: <code>gabriel@clyvovet.com.br</code> / <code>tutor123</code></p>
+            </div>
+        </div>
+    </div>
+
+    <p class="rodape-links" style="text-align:center">
+        API REST: <code>POST /api/auth/login</code> · <a th:href="@{/swagger-ui.html}">Swagger</a>
+    </p>
+
+</main>
+
+</body>
+</html>

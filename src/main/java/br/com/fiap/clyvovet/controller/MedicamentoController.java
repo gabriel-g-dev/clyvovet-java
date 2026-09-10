@@ -1,5 +1,7 @@
 package br.com.fiap.clyvovet.controller;
 
+import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
+
 import br.com.fiap.clyvovet.dto.MedicamentoRequestDTO;
 import br.com.fiap.clyvovet.dto.MedicamentoResponseDTO;
 import br.com.fiap.clyvovet.model.Medicamento;
@@ -27,7 +29,7 @@ public class MedicamentoController {
     public ResponseEntity<MedicamentoResponseDTO> buscarPorId(@PathVariable Long id) {
         return repository.findById(id)
                 .map(med -> ResponseEntity.ok(mapToResponseDTO(med)))
-                .orElseThrow(() -> new RuntimeException("Medicamento não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Medicamento não encontrado"));
     }
 
     @PostMapping
@@ -40,7 +42,7 @@ public class MedicamentoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MedicamentoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody MedicamentoRequestDTO dto) {
-        if (!repository.existsById(id)) throw new RuntimeException("Medicamento não encontrado");
+        if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Medicamento não encontrado");
         Medicamento med = new Medicamento();
         med.setId(id);
         med.setNome(dto.getNome());
@@ -49,7 +51,7 @@ public class MedicamentoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!repository.existsById(id)) throw new RuntimeException("Medicamento não encontrado");
+        if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Medicamento não encontrado");
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'ClyvoVet — ' + ${pet.nome}">ClyvoVet — Pet</title>
+    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+</head>
+<body>
+
+<nav th:replace="~{fragmentos :: cabecalho('pets')}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <h1 th:text="${pet.nome}">Rex</h1>
+    <p class="subtitulo">
+        <span th:text="${pet.especie}">Cachorro</span> ·
+        <span th:text="${pet.raca}">Golden</span> ·
+        tutor <span th:text="${pet.tutorNome}">Gabriel</span>
+    </p>
+
+    <div class="duas-colunas">
+
+        <div class="coluna">
+            <div class="painel">
+                <div class="painel-corpo">
+                    <p class="rotulo subtitulo" style="margin:0">Score de saúde preventiva</p>
+                    <p class="score"
+                       th:classappend="${analise.statusEngajamento == 'EXCELENTE'} ? 'score-excelente'
+                                       : (${analise.statusEngajamento == 'ATENÇÃO'} ? 'score-atencao' : 'score-critico')"
+                       th:text="${analise.scoreSaude}">85</p>
+                    <p style="margin:0" th:text="${analise.statusEngajamento}">ATENÇÃO</p>
+
+                    <ul class="recomendacoes">
+                        <li th:each="r : ${analise.recomendacoes}" th:text="${r}">Recomendação</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="coluna">
+            <div class="painel">
+                <div class="painel-corpo">
+                    <ul class="dados">
+                        <li><span class="rotulo">Idade</span><span th:text="${pet.idade}">3 anos</span></li>
+                        <li><span class="rotulo">Espécie</span><span th:text="${pet.especie}">Cachorro</span></li>
+                        <li><span class="rotulo">Raça</span><span th:text="${pet.raca}">Golden</span></li>
+                        <li><span class="rotulo">Tutor</span><span th:text="${pet.tutorNome}">Gabriel</span></li>
+                        <li><span class="rotulo">Vacinas pendentes</span>
+                            <span th:text="${pet.vacinasPendentes}">2</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Calendário vacinal</h2>
+
+    <div th:if="${#lists.isEmpty(pet.vacinas)}" class="aviso aviso-vazio">
+        Nenhuma vacina registrada para este pet.
+    </div>
+
+    <div class="painel" th:unless="${#lists.isEmpty(pet.vacinas)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Vacina</th>
+                <th>Data</th>
+                <th>Situação</th>
+                <th>Reforço</th>
+                <th sec:authorize="hasRole('ADMIN')">Ação</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${pet.vacinas}">
+                <td th:text="${v.nome}">Antirrábica</td>
+                <td th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</td>
+                <td><span th:replace="~{fragmentos :: selo(${v.status})}"></span></td>
+                <td>
+                    <span th:if="${v.intervaloReforcoDias != null}"
+                          th:text="'a cada ' + ${v.intervaloReforcoDias} + ' dias'">a cada 365 dias</span>
+                    <span th:if="${v.intervaloReforcoDias == null}" class="subtitulo">sem reforço</span>
+                </td>
+                <td sec:authorize="hasRole('ADMIN')">
+                    <form th:if="${v.status == 'P'}" th:action="@{/vacinas/{id}/aplicar(id=${v.id})}" method="post">
+                        <input type="hidden" name="petId" th:value="${pet.id}">
+                        <button class="btn btn-mini" type="submit">Registrar aplicação</button>
+                    </form>
+                    <span th:unless="${v.status == 'P'}" class="subtitulo">—</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="rodape-links">
+        <a th:href="@{/pets}">&larr; Voltar para a lista</a>
+    </p>
+</main>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-# 📅 Cronograma de Desenvolvimento — ClyvoVet (Sprint 1 & Sprint 2)
+# 📅 Cronograma de Desenvolvimento — ClyvoVet (Sprints 1 a 3)
 
 Este documento descreve as fases de planejamento, modelagem, desenvolvimento e testes das APIs e artefatos do projeto ClyvoVet, especificando os responsáveis, entregáveis e datas de conclusão.
 
@@ -33,7 +33,27 @@ Este documento descreve as fases de planejamento, modelagem, desenvolvimento e t
 
 ---
 
+## 🗓️ Sprint 3 — Java Advanced (aplicação web completa)
+
+| Fase | Atividade / Entregável | Responsável | Início | Fim | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Banco** | Migração do schema para Flyway (V1 tabelas, V2 carga inicial) | Andre Bellandi | 10/08/2026 | 14/08/2026 | ✅ Concluído |
+| **Banco** | Troca do `ddl-auto` para `validate`, com o Flyway como fonte do schema | Andre Bellandi | 15/08/2026 | 16/08/2026 | ✅ Concluído |
+| **Segurança** | Tabela `USUARIOS`, senhas em BCrypt e `UserDetailsService` | Gabriel Garcia | 17/08/2026 | 20/08/2026 | ✅ Concluído |
+| **Segurança** | Duas filter chains: sessão no painel web e JWT stateless na API | Gabriel Garcia | 21/08/2026 | 25/08/2026 | ✅ Concluído |
+| **Segurança** | Perfis ADMIN e TUTOR com permissões distintas por rota e método | Gabriel Garcia | 26/08/2026 | 28/08/2026 | ✅ Concluído |
+| **Frontend** | Páginas Thymeleaf: login, dashboard, lista e ficha do pet | Gabriel / Vitor | 29/08/2026 | 02/09/2026 | ✅ Concluído |
+| **Frontend** | Formulário de cadastro com validação campo a campo e feedback na tela | Vitor Augusto | 03/09/2026 | 04/09/2026 | ✅ Concluído |
+| **Fluxo 1** | Motor de inteligência preventiva (score 0-100 e recomendações) | Gabriel Garcia | 05/09/2026 | 05/09/2026 | ✅ Concluído |
+| **Fluxo 2** | Baixa de vacina com agendamento automático do reforço | Gabriel Garcia | 05/09/2026 | 06/09/2026 | ✅ Concluído |
+| **QA / Testes** | Testes de permissão por perfil e das regras da baixa de vacina | Vitor Augusto | 06/09/2026 | 07/09/2026 | ✅ Concluído |
+| **Documentação** | README, diagramas e collection do Insomnia atualizados | Vitor Augusto | 07/09/2026 | 07/09/2026 | ✅ Concluído |
+| **Entrega** | Revisão final, gravação do vídeo e envio | Todos | 07/09/2026 | 07/09/2026 | ⏳ Pronto |
+
+---
+
 ## 📈 Resumo do Progresso
 - **Sprint 1 (Backend, Database, DevOps, Mobilidade)**: 100% concluída.
 - **Sprint 2 (Consolidação de Requisitos, Cache, DTOs e Documentação)**: 100% concluída.
+- **Sprint 3 (Flyway, Spring Security, frontend Thymeleaf e fluxos de negócio)**: 100% concluída.
 - **Documentação de Processo**: Registrada na pasta `documents` conforme exigido pelas diretrizes acadêmicas da FIAP.

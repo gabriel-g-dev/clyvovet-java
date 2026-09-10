@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav th:fragment="cabecalho(ativo)" class="topo">
+    <div class="container linha">
+        <a class="marca" th:href="@{/dashboard}">🐾 ClyvoVet</a>
+
+        <div class="menu">
+            <a th:href="@{/dashboard}" th:classappend="${ativo == 'dashboard'} ? 'ativo'">Dashboard</a>
+            <a th:href="@{/pets}" th:classappend="${ativo == 'pets'} ? 'ativo'">Pets</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/pets/novo}"
+               th:classappend="${ativo == 'novo'} ? 'ativo'">Cadastrar pet</a>
+            <a th:href="@{/swagger-ui.html}">API</a>
+        </div>
+
+        <div class="usuario">
+            <span th:text="${usuario}">usuário</span>
+            <span sec:authorize="hasRole('ADMIN')" class="tag tag-admin">ADMIN</span>
+            <span sec:authorize="hasRole('TUTOR')" class="tag tag-tutor">TUTOR</span>
+            <form th:action="@{/logout}" method="post"><button class="btn-sair" type="submit">Sair</button></form>
+        </div>
+    </div>
+</nav>
+
+<div th:fragment="avisos">
+    <div th:if="${sucesso}" class="aviso aviso-ok" th:text="${sucesso}"></div>
+    <div th:if="${erro}" class="aviso aviso-erro" th:text="${erro}"></div>
+</div>
+
+<span th:fragment="selo(status)"
+      class="selo"
+      th:classappend="${status == 'A'} ? 'selo-ok' : 'selo-pendente'"
+      th:text="${status == 'A'} ? 'Aplicada' : 'Pendente'">Pendente</span>
+
+</body>
+</html>
