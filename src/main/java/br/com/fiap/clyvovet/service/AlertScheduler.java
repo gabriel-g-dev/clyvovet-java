@@ -11,10 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Varredura preventiva: percorre o calendário vacinal e registra em log os
- * avisos que, em produção, sairiam por e-mail e SMS para o tutor.
- */
+/** Os avisos vão para o log; em produção sairiam por e-mail e SMS para o tutor. */
 @Component
 public class AlertScheduler {
 

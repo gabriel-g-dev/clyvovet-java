@@ -23,20 +23,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * Perfis de acesso do ClyvoVet:
- *
- * ADMIN — equipe da clínica. Enxerga e altera os dados de todos os pets, cuida
- *         do cadastro interno (funcionários, medicamentos, tutores) e é quem
- *         registra vacinas e dá baixa nas aplicações.
- *
- * TUTOR — dono do pet. Faz o CRUD dos próprios pets e das
- *         consultas deles, e acompanha o calendário vacinal. Nunca alcança o
- *         dado de outro tutor: além da regra de rota declarada aqui, cada
- *         recurso passa pela checagem de propriedade do EscopoUsuarioService.
- *
  * São duas filter chains porque a API e o painel web falham de formas
- * diferentes: sem credencial um cliente de API precisa de um 401 seco, e não do redirect
- * 302 para a página de login em HTML.
+ * diferentes: sem credencial, um cliente de API precisa de um 401 seco, e não
+ * do redirect 302 para a página de login em HTML.
+ *
+ * As regras abaixo decidem o que cada perfil pode chamar; de quem é cada
+ * registro é conferido depois, no EscopoUsuarioService.
  */
 @Configuration
 @EnableWebSecurity
@@ -61,7 +53,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
 
-                // Cadastro interno da clínica: nada aqui é do tutor.
                 .requestMatchers("/api/medicamentos/**").hasRole(ADMIN)
                 .requestMatchers("/api/tutores/**").hasRole(ADMIN)
 
@@ -76,7 +67,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/vacinas/**").hasRole(ADMIN)
                 .requestMatchers(HttpMethod.DELETE, "/api/vacinas/**").hasRole(ADMIN)
 
-                // Pets e consultas: o tutor administra os próprios.
                 .requestMatchers("/api/pets/**", "/api/consultas/**").hasAnyRole(ADMIN, TUTOR)
 
                 .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole(ADMIN, TUTOR)
@@ -125,9 +115,8 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS preparado para um cliente Expo. Um app empacotado é nativo e não passa por CORS,
-     * mas o Expo Web e o Expo Go em desenvolvimento rodam em origens http, e sem
-     * isto o navegador barraria as chamadas antes de saírem.
+     * Preparado para um cliente Expo: um app nativo não passa por CORS, mas o
+     * Expo Web e o Expo Go rodam em origens http que o navegador barraria.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

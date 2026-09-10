@@ -12,11 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Cadastro público do tutor (POST /api/auth/register).
- *
- * Grava duas linhas na mesma transação: a credencial em USUARIOS e o cadastro
- * em DONOS, com o mesmo e-mail nas duas. É esse e-mail compartilhado que depois
- * permite descobrir de quem são os pets ({@link br.com.fiap.clyvovet.security.EscopoUsuarioService}).
+ * Grava a credencial (USUARIOS) e o cadastro do tutor (DONOS) na mesma transação
+ * e com o mesmo e-mail, que é o vínculo usado pelo EscopoUsuarioService.
  */
 @Service
 public class RegistroService {

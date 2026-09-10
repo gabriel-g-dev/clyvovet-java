@@ -16,12 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Monta os dados das telas do painel web.
- *
- * A aplicação roda com open-in-view=false, então as associações LAZY (dono e
- * vacinas) precisam ser materializadas aqui dentro da transação — se fossem
- * tocadas durante a renderização do template, o Hibernate já teria fechado a
- * sessão.
+ * Com open-in-view=false, as associações LAZY (dono e vacinas) precisam ser
+ * lidas aqui, dentro da transação, e não durante a renderização do template.
  */
 @Service
 public class PainelService {

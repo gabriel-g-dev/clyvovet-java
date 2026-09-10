@@ -86,8 +86,7 @@ public class AuthRestController {
         perfil.put("email", authentication.getName());
         perfil.put("role", role);
 
-        // O tutor recebe aqui o próprio cadastro, e com isso o cliente não precisa
-        // pedir a lista de tutores, que é restrita ao ADMIN.
+        // A lista de tutores é só do ADMIN; o tutor vê o próprio cadastro por aqui.
         donoRepository.findByEmail(authentication.getName()).ifPresent(dono -> {
             perfil.put("tutorId", dono.getId());
             perfil.put("nome", dono.getNome());

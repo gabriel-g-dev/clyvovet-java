@@ -20,12 +20,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Agenda e histórico clínico.
- *
- * A consulta pertence ao tutor do pet: o TUTOR só enxerga e altera consultas
- * dos seus próprios pets, e não consegue agendar para o pet de outra pessoa.
- */
 @Service
 @CacheConfig(cacheNames = "inteligenciaPreventiva")
 public class ConsultaService {
@@ -127,9 +121,8 @@ public class ConsultaService {
     }
 
     /**
-     * Preço é decisão da clínica. O valor enviado pelo TUTOR é ignorado: na
-     * criação a consulta nasce com zero e, na edição, mantém o que já estava
-     * gravado — assim o tutor não consegue apagar o preço definido pelo ADMIN.
+     * Preço é decisão da clínica: o valor enviado pelo TUTOR é ignorado. Na edição
+     * fica o valor já gravado, para o tutor não apagar o preço definido pelo ADMIN.
      */
     private BigDecimal valorDaConsulta(ConsultaRequestDTO dto, Consulta consulta) {
         if (escopo.ehAdmin() && dto.getValor() != null) {

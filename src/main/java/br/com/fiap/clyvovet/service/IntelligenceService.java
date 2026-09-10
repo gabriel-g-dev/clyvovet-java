@@ -16,11 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Motor de prevenção do ClyvoVet: cruza o calendário vacinal com o histórico
- * de consultas do pet e devolve um score de 0 a 100 com as recomendações que
- * o tutor precisa ver.
- */
 @Service
 public class IntelligenceService {
 

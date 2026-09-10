@@ -156,14 +156,14 @@ POST /api/vacinas/{id}/aplicar     (ou o botão "Registrar aplicação" em /pets
 
 ## 🔗 Endpoints da API
 
-`POST /api/auth/login` é público; todas as demais rotas exigem `Authorization: Bearer <token>`.
+`POST /api/auth/register` e `POST /api/auth/login` são públicos. `GET /api/auth/me` exige usuário autenticado (`Authorization: Bearer <token>`). Todas as demais rotas também exigem o token e seguem as permissões de ADMIN e TUTOR descritas em *Acesso e perfis*.
 
-### Autenticação (`/api/auth`) — rotas públicas
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| **POST** | `/api/auth/register` | Cadastra um tutor (cria o login e o cadastro na mesma transação). Perfil sempre `ROLE_TUTOR` |
-| **POST** | `/api/auth/login` | Autentica e devolve o token JWT, o perfil e a validade |
-| **GET** | `/api/auth/me` | Perfil do dono do token: e-mail, role e, para o tutor, `tutorId`, nome e telefone |
+### Autenticação (`/api/auth`)
+| Método | Endpoint | Descrição | Acesso |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Cadastra um tutor (cria o login e o cadastro na mesma transação). Perfil sempre `ROLE_TUTOR` | Público |
+| **POST** | `/api/auth/login` | Autentica e devolve o token JWT, o perfil e a validade | Público |
+| **GET** | `/api/auth/me` | Perfil do dono do token: e-mail, role e, para o tutor, `tutorId`, nome e telefone | Exige token |
 
 ### Pets (`/api/pets`)
 | Método | Endpoint | Acesso |

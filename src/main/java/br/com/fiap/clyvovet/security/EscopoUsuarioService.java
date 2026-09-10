@@ -12,15 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Resolve de quem é o dado que está sendo acessado.
- *
- * O vínculo entre a credencial e o cadastro do tutor é o e-mail: a linha de
- * USUARIOS e a linha de DONOS do mesmo tutor compartilham o mesmo e-mail, e
- * as duas colunas são únicas. Por isso dá para restringir os dados por usuário
- * sem chave estrangeira nova entre as tabelas.
- *
- * ADMIN é a equipe da clínica e enxerga todos os pets; TUTOR só alcança os
- * pets que estão no seu próprio cadastro.
+ * O vínculo entre a credencial (USUARIOS) e o cadastro do tutor (DONOS) é o
+ * e-mail, único nas duas tabelas. É isso que permite restringir os dados por
+ * usuário sem uma chave estrangeira entre elas.
  */
 @Service
 public class EscopoUsuarioService {
@@ -48,10 +42,6 @@ public class EscopoUsuarioService {
         return auth.getName();
     }
 
-    /**
-     * Cadastro de tutor do usuário logado. Um ADMIN não precisa ter cadastro de
-     * tutor, então este método só faz sentido no escopo de quem é TUTOR.
-     */
     @Transactional(readOnly = true)
     public Dono tutorLogado() {
         String email = emailDoUsuarioLogado();
@@ -60,7 +50,6 @@ public class EscopoUsuarioService {
                         "Usuário " + email + " não possui cadastro de tutor vinculado"));
     }
 
-    /** ID do tutor a ser gravado no recurso: o ADMIN escolhe, o TUTOR é sempre ele mesmo. */
     public Long tutorIdPermitido(Long tutorIdInformado) {
         if (ehAdmin()) {
             return tutorIdInformado;

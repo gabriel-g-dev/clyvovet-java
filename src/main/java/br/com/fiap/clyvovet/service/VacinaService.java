@@ -16,11 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Calendário vacinal.
- *
- * A leitura segue o dono do pet: o TUTOR acompanha o cartão de vacinas dos seus
- * animais. Registrar, alterar e dar baixa continua sendo ato da clínica, e a
- * chain de segurança restringe essas rotas ao ADMIN.
+ * A escrita é restrita ao ADMIN pela SecurityConfig; aqui só se confere a
+ * propriedade do pet.
  */
 @Service
 @CacheConfig(cacheNames = "inteligenciaPreventiva")

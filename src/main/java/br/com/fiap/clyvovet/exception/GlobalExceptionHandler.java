@@ -59,7 +59,6 @@ public class GlobalExceptionHandler {
         return montar(HttpStatus.BAD_REQUEST, descreverCorpoIlegivel(ex), request, null);
     }
 
-    /** Aponta o campo culpado quando o Jackson sabe qual é, em vez de um erro genérico. */
     private String descreverCorpoIlegivel(HttpMessageNotReadableException ex) {
         if (ex.getCause() instanceof InvalidFormatException formato && !formato.getPath().isEmpty()) {
             String campo = formato.getPath().get(formato.getPath().size() - 1).getFieldName();

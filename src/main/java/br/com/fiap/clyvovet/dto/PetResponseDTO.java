@@ -33,7 +33,6 @@ public class PetResponseDTO {
         return idadeEmTexto(dataNascimento);
     }
 
-    /** Idade sempre derivada da data de nascimento, nunca guardada no banco. */
     public static String idadeEmTexto(LocalDate dataNascimento) {
         if (dataNascimento == null) {
             return null;

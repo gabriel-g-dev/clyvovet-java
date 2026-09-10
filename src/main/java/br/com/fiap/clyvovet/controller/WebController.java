@@ -25,10 +25,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Painel web em Thymeleaf. Devolve nomes de template, e quem protege as rotas
- * é a chain web do SecurityConfig (sessão + formulário), não o Bearer token.
- */
 @Controller
 public class WebController {
 

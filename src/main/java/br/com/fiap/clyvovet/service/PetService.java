@@ -18,14 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Cadastro de pets usado pela API REST e pelo painel web.
- *
- * O ADMIN enxerga e altera qualquer pet. O TUTOR só alcança os pets do próprio
- * cadastro, e o tutor gravado no pet é sempre ele mesmo — o {@code tutorId} que
- * vier no corpo da requisição é ignorado nesse caso.
- *
- * Alterar um pet limpa o cache dos tutores, porque a resposta de tutor traz
- * a lista de pets, e o da análise preventiva.
+ * Alterar um pet limpa o cache dos tutores, porque a resposta de tutor traz a
+ * lista de pets, e o da análise preventiva.
  */
 @Service
 @CacheConfig(cacheNames = {"Donoes", "Dono", "DonoEmail", "DonoPets", "inteligenciaPreventiva"})

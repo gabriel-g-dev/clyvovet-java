@@ -4,10 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Cadastro público de tutor. O perfil nunca vem do cliente: quem se
- * registra por aqui é sempre ROLE_TUTOR.
- */
+/** O perfil não vem do cliente: todo cadastro por aqui é ROLE_TUTOR. */
 public class RegistroRequestDTO {
 
     @NotBlank(message = "Nome é obrigatório")

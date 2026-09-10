@@ -1,8 +1,5 @@
 package br.com.fiap.clyvovet.dto;
 
-/**
- * Resposta do cadastro. Não carrega senha nem hash em nenhuma hipótese.
- */
 public class RegistroResponseDTO {
 
     private Long usuarioId;
