@@ -67,9 +67,11 @@ public class VacinaController {
         LocalDate dataAplicacao = dto != null ? dto.getDataAplicacao() : null;
         BaixaVacinaResultado resultado = baixaVacinaService.aplicar(id, dataAplicacao);
 
-        String mensagem = resultado.temProximaDose()
-                ? "Vacina aplicada e próxima dose agendada automaticamente"
-                : "Vacina aplicada. Esta vacina não possui intervalo de reforço cadastrado";
+        String mensagem = switch (resultado.reforco()) {
+            case AGENDADO_AGORA -> "Vacina aplicada e próxima dose agendada automaticamente";
+            case JA_AGENDADO -> "Vacina aplicada. A próxima dose já estava agendada";
+            case SEM_INTERVALO -> "Vacina aplicada. Esta vacina não possui intervalo de reforço cadastrado";
+        };
 
         BaixaVacinaResponseDTO resposta = new BaixaVacinaResponseDTO(
                 mensagem,

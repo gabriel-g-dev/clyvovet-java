@@ -10,6 +10,7 @@ import br.com.fiap.clyvovet.service.IntelligenceService;
 import br.com.fiap.clyvovet.service.PainelService;
 import br.com.fiap.clyvovet.service.PetService;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -119,6 +120,7 @@ public class WebController {
     }
 
     @PostMapping("/vacinas/{id}/aplicar")
+    @CacheEvict(value = "inteligenciaPreventiva", allEntries = true)
     public String aplicarVacina(@PathVariable Long id,
                                 @RequestParam Long petId,
                                 RedirectAttributes redirect) {
@@ -133,11 +135,12 @@ public class WebController {
 
     private String mensagemDaBaixa(BaixaVacinaResultado resultado) {
         String base = "Vacina '" + resultado.aplicada().getNome() + "' aplicada.";
-        if (!resultado.temProximaDose()) {
-            return base + " Esta vacina não tem intervalo de reforço cadastrado.";
-        }
-        return base + " Próxima dose agendada automaticamente para "
-                + resultado.proximaDose().getData().format(DATA) + ".";
+        return base + switch (resultado.reforco()) {
+            case AGENDADO_AGORA -> " Próxima dose agendada automaticamente para "
+                    + resultado.proximaDose().getData().format(DATA) + ".";
+            case JA_AGENDADO -> " A próxima dose já estava agendada.";
+            case SEM_INTERVALO -> " Esta vacina não tem intervalo de reforço cadastrado.";
+        };
     }
 
     private String nomeDoUsuario(Authentication authentication) {

@@ -38,9 +38,7 @@ public class DonoController {
     @Cacheable(value = "Dono", key = "#id")
     @Transactional(readOnly = true)
     public ResponseEntity<DonoResponseDTO> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(dono -> ResponseEntity.ok(mapToResponseDTO(dono)))
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
+        return ResponseEntity.ok(buscarTutor(id));
     }
 
     @GetMapping("/email/{email}")
@@ -52,13 +50,13 @@ public class DonoController {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
     }
 
+    // A resposta do tutor já traz a lista de pets; esta rota existe para deixar
+    // essa intenção explícita no contrato e para ter o seu próprio cache.
     @GetMapping("/{id}/pets")
     @Cacheable(value = "DonoPets", key = "#id")
     @Transactional(readOnly = true)
     public ResponseEntity<DonoResponseDTO> buscarComPets(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(dono -> ResponseEntity.ok(mapToResponseDTO(dono)))
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
+        return ResponseEntity.ok(buscarTutor(id));
     }
 
     @PostMapping
@@ -87,6 +85,12 @@ public class DonoController {
             throw new RecursoNaoEncontradoException("Dono não encontrado");
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private DonoResponseDTO buscarTutor(Long id) {
+        return repository.findById(id)
+                .map(this::mapToResponseDTO)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
     }
 
     private DonoResponseDTO mapToResponseDTO(Dono dono) {

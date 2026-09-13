@@ -4,6 +4,7 @@ import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
 import br.com.fiap.clyvovet.exception.RegraNegocioException;
 import br.com.fiap.clyvovet.model.Vacina;
 import br.com.fiap.clyvovet.repository.VacinaRepository;
+import br.com.fiap.clyvovet.service.BaixaVacinaResultado.Reforco;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -48,19 +49,26 @@ public class BaixaVacinaService {
         vacina.setData(data);
         Vacina aplicada = vacinaRepository.save(vacina);
 
-        Vacina proximaDose = agendarReforco(aplicada, data);
+        BaixaVacinaResultado resultado = resolverReforco(aplicada, data);
 
         logger.info("Baixa de vacina: id={} nome='{}' petId={} aplicada em {} | proxima dose: {}",
                 aplicada.getId(), aplicada.getNome(), aplicada.getPet().getId(), data.format(FORMATO_DATA),
-                proximaDose != null ? proximaDose.getData().format(FORMATO_DATA) : "não agendada");
+                resultado.temProximaDose()
+                        ? resultado.proximaDose().getData().format(FORMATO_DATA)
+                        : resultado.reforco());
 
-        return new BaixaVacinaResultado(aplicada, proximaDose);
+        return resultado;
     }
 
-    private Vacina agendarReforco(Vacina aplicada, LocalDate dataAplicacao) {
+    /**
+     * Agenda a próxima dose quando ela cabe e informa qual dos três desfechos
+     * ocorreu, para que a mensagem ao usuário não confunda "sem intervalo de
+     * reforço" com "reforço que já estava na agenda".
+     */
+    private BaixaVacinaResultado resolverReforco(Vacina aplicada, LocalDate dataAplicacao) {
         Integer intervalo = aplicada.getIntervaloReforcoDias();
         if (intervalo == null || intervalo <= 0) {
-            return null;
+            return new BaixaVacinaResultado(aplicada, null, Reforco.SEM_INTERVALO);
         }
 
         LocalDate dataProximaDose = dataAplicacao.plusDays(intervalo);
@@ -69,7 +77,7 @@ public class BaixaVacinaService {
         boolean jaAgendada = vacinaRepository.existsByPetIdAndNomeAndStatusAndData(
                 petId, aplicada.getNome(), STATUS_PENDENTE, dataProximaDose);
         if (jaAgendada) {
-            return null;
+            return new BaixaVacinaResultado(aplicada, null, Reforco.JA_AGENDADO);
         }
 
         Vacina proximaDose = new Vacina();
@@ -79,6 +87,7 @@ public class BaixaVacinaService {
         proximaDose.setStatus(STATUS_PENDENTE);
         proximaDose.setIntervaloReforcoDias(intervalo);
 
-        return vacinaRepository.save(proximaDose);
+        return new BaixaVacinaResultado(aplicada, vacinaRepository.save(proximaDose),
+                Reforco.AGENDADO_AGORA);
     }
 }

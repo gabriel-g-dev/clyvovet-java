@@ -54,10 +54,6 @@ public class TokenService {
         return lerClaims(token).map(Claims::getSubject);
     }
 
-    public Optional<String> extrairRole(String token) {
-        return lerClaims(token).map(claims -> claims.get(CLAIM_ROLE, String.class));
-    }
-
     private Optional<Claims> lerClaims(String token) {
         if (token == null || token.isBlank()) {
             return Optional.empty();

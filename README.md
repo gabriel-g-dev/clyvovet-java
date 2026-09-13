@@ -145,9 +145,11 @@ POST /api/vacinas/{id}/aplicar     (ou o botão "Registrar aplicação" em /pets
   → VacinaController / WebController
   → BaixaVacinaService.aplicar
        ├── vacina já aplicada?  → 409 Conflict
-       ├── data no futuro?      → 409 Conflict
+       ├── data no futuro?      → 400 Bad Request (o Bean Validation do DTO
+       │                          rejeita antes de chegar ao service, que
+       │                          mantém a mesma regra como segunda barreira)
        ├── marca como aplicada ('A')
-       └── agendarReforco: cria nova vacina pendente em
+       └── resolverReforco: cria nova vacina pendente em
            dataAplicacao + intervaloReforcoDias (sem duplicar dose já agendada)
   → BaixaVacinaResponseDTO (dose aplicada + próxima dose)
 ```
