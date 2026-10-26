@@ -9,7 +9,9 @@ import br.com.fiap.clyvovet.repository.DonoRepository;
 import br.com.fiap.clyvovet.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Locale;
 
 /**
  * Grava a credencial (USUARIOS) e o cadastro do tutor (DONOS) na mesma transação
@@ -33,8 +35,9 @@ public class RegistroService {
     }
 
     @Transactional
+    @CacheEvict(value = {"Donoes", "Dono", "DonoEmail", "DonoPets"}, allEntries = true)
     public RegistroResponseDTO registrarTutor(RegistroRequestDTO dto) {
-        String email = dto.getEmail().trim().toLowerCase();
+        String email = dto.getEmail().trim().toLowerCase(Locale.ROOT);
 
         if (usuarioRepository.findByEmail(email).isPresent()) {
             throw new RegraNegocioException("Já existe um usuário cadastrado com o e-mail " + email);

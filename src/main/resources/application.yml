@@ -19,7 +19,7 @@ spring:
     # entidade divergir da migration, a aplicacao falha ao subir.
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -32,6 +32,18 @@ spring:
 
   thymeleaf:
     cache: false
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
 
 springdoc:
   swagger-ui:

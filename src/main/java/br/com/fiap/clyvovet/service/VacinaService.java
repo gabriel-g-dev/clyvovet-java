@@ -3,6 +3,7 @@ package br.com.fiap.clyvovet.service;
 import br.com.fiap.clyvovet.dto.VacinaRequestDTO;
 import br.com.fiap.clyvovet.dto.VacinaResponseDTO;
 import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
+import br.com.fiap.clyvovet.exception.RegraNegocioException;
 import br.com.fiap.clyvovet.model.Vacina;
 import br.com.fiap.clyvovet.repository.VacinaRepository;
 import br.com.fiap.clyvovet.security.EscopoUsuarioService;
@@ -112,6 +113,9 @@ public class VacinaService {
     }
 
     private Vacina paraEntidade(VacinaRequestDTO dto, Vacina vacina) {
+        if (!dto.isDataCoerenteComStatus()) {
+            throw new RegraNegocioException("Vacina aplicada não pode ter data no futuro");
+        }
         vacina.setNome(dto.getNome());
         vacina.setData(dto.getDataAplicacao());
         vacina.setStatus(dto.getStatus() == null ? BaixaVacinaService.STATUS_PENDENTE : dto.getStatus());

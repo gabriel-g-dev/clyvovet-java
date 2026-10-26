@@ -1,104 +1,75 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="'ClyvoVet — ' + ${pet.nome}">ClyvoVet — Pet</title>
-    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'ClyvoVet — ' + ${pet.nome}">ClyvoVet — Pet</title><link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 <body>
-
 <nav th:replace="~{fragmentos :: cabecalho('pets')}"></nav>
-
-<main class="container">
+<main id="conteudo" class="container">
+    <a class="voltar" th:href="@{/pets}">&larr; Todos os pets</a>
     <div th:replace="~{fragmentos :: avisos}"></div>
-
-    <h1 th:text="${pet.nome}">Rex</h1>
-    <p class="subtitulo">
-        <span th:text="${pet.especie}">Cachorro</span> ·
-        <span th:text="${pet.raca}">Golden</span> ·
-        tutor <span th:text="${pet.tutorNome}">Gabriel</span>
-    </p>
-
+    <div class="titulo-pagina">
+        <div><p class="sobretitulo">Ficha de acompanhamento</p><h1 th:text="${pet.nome}">Rex</h1>
+            <p class="subtitulo"><span th:text="${pet.especie}">Cachorro</span> · <span th:text="${pet.raca}">Golden</span> · Tutor: <span th:text="${pet.tutorNome}">Gabriel</span></p>
+        </div>
+        <a class="btn btn-secundario" sec:authorize="hasRole('ADMIN')" th:href="@{/pets/{id}/editar(id=${pet.id})}">Editar cadastro</a>
+    </div>
     <div class="duas-colunas">
-
-        <div class="coluna">
-            <div class="painel">
-                <div class="painel-corpo">
-                    <p class="rotulo subtitulo" style="margin:0">Score de saúde preventiva</p>
-                    <p class="score"
-                       th:classappend="${analise.statusEngajamento == 'EXCELENTE'} ? 'score-excelente'
-                                       : (${analise.statusEngajamento == 'ATENÇÃO'} ? 'score-atencao' : 'score-critico')"
-                       th:text="${analise.scoreSaude}">85</p>
-                    <p style="margin:0" th:text="${analise.statusEngajamento}">ATENÇÃO</p>
-
-                    <ul class="recomendacoes">
-                        <li th:each="r : ${analise.recomendacoes}" th:text="${r}">Recomendação</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="coluna">
-            <div class="painel">
-                <div class="painel-corpo">
-                    <ul class="dados">
-                        <li><span class="rotulo">Idade</span><span th:text="${pet.idade}">3 anos</span></li>
-                        <li><span class="rotulo">Espécie</span><span th:text="${pet.especie}">Cachorro</span></li>
-                        <li><span class="rotulo">Raça</span><span th:text="${pet.raca}">Golden</span></li>
-                        <li><span class="rotulo">Tutor</span><span th:text="${pet.tutorNome}">Gabriel</span></li>
-                        <li><span class="rotulo">Vacinas pendentes</span>
-                            <span th:text="${pet.vacinasPendentes}">2</span></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        <section class="coluna painel" aria-labelledby="titulo-score"><div class="painel-corpo">
+            <h2 id="titulo-score" class="titulo-cartao">Índice de acompanhamento preventivo</h2>
+            <div class="score-linha"><p class="score" th:classappend="${analise.statusEngajamento == 'EXCELENTE'} ? 'score-excelente' : (${analise.statusEngajamento == 'ATENÇÃO'} ? 'score-atencao' : 'score-critico')" th:text="${analise.scoreSaude}">85</p><span class="texto-secundario">/ 100</span></div>
+            <p class="status-score" th:text="${analise.statusEngajamento}">ATENÇÃO</p>
+            <p class="ajuda">Calculado a partir das vacinas e consultas registradas no sistema.</p>
+            <ul class="recomendacoes"><li th:each="r : ${analise.recomendacoes}" th:text="${r}">Recomendação</li></ul>
+        </div></section>
+        <section class="coluna painel" aria-labelledby="titulo-cadastro"><div class="painel-corpo">
+            <h2 id="titulo-cadastro" class="titulo-cartao">Resumo do cadastro</h2>
+            <ul class="dados">
+                <li><span class="rotulo">Idade</span><span th:text="${pet.idade}">3 anos</span></li>
+                <li><span class="rotulo">Espécie</span><span th:text="${pet.especie}">Cachorro</span></li>
+                <li><span class="rotulo">Raça</span><span th:text="${pet.raca}">Golden</span></li>
+                <li><span class="rotulo">Tutor</span><span th:text="${pet.tutorNome}">Gabriel</span></li>
+                <li><span class="rotulo">Doses pendentes</span><span th:text="${pet.vacinasPendentes}">2</span></li>
+            </ul>
+        </div></section>
     </div>
-
-    <h2>Calendário vacinal</h2>
-
-    <div th:if="${#lists.isEmpty(pet.vacinas)}" class="aviso aviso-vazio">
-        Nenhuma vacina registrada para este pet.
-    </div>
-
-    <div class="painel" th:unless="${#lists.isEmpty(pet.vacinas)}">
-        <table>
-            <thead>
-            <tr>
-                <th>Vacina</th>
-                <th>Data</th>
-                <th>Situação</th>
-                <th>Reforço</th>
-                <th sec:authorize="hasRole('ADMIN')">Ação</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="v : ${pet.vacinas}">
-                <td th:text="${v.nome}">Antirrábica</td>
-                <td th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</td>
-                <td><span th:replace="~{fragmentos :: selo(${v.status})}"></span></td>
-                <td>
-                    <span th:if="${v.intervaloReforcoDias != null}"
-                          th:text="'a cada ' + ${v.intervaloReforcoDias} + ' dias'">a cada 365 dias</span>
-                    <span th:if="${v.intervaloReforcoDias == null}" class="subtitulo">sem reforço</span>
-                </td>
-                <td sec:authorize="hasRole('ADMIN')">
+    <div class="titulo-secao"><h2>Calendário vacinal</h2><a class="btn btn-mini" sec:authorize="hasRole('ADMIN')" th:href="@{/pets/{id}/vacinas/novo(id=${pet.id})}">Agendar vacina</a></div>
+    <p class="ajuda" sec:authorize="hasRole('ADMIN')">“Registrar aplicação hoje” confirma a dose na data de hoje e agenda o reforço quando houver intervalo informado.</p>
+    <div th:if="${#lists.isEmpty(pet.vacinas)}" class="aviso aviso-vazio"><strong>Nenhuma vacina registrada.</strong><p>O calendário deste pet ainda precisa ser preenchido.</p></div>
+    <div class="painel tabela-responsiva" th:unless="${#lists.isEmpty(pet.vacinas)}">
+        <table aria-label="Calendário vacinal do pet">
+            <thead><tr><th scope="col">Vacina</th><th scope="col">Data</th><th scope="col">Situação</th><th scope="col">Reforço</th><th scope="col" sec:authorize="hasRole('ADMIN')">Ação</th></tr></thead>
+            <tbody><tr th:each="v : ${pet.vacinas}">
+                <td data-label="Vacina" th:text="${v.nome}">Antirrábica</td>
+                <td data-label="Data" th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</td>
+                <td data-label="Situação"><span th:replace="~{fragmentos :: situacaoVacina(${v})}"></span></td>
+                <td data-label="Reforço"><span th:if="${v.intervaloReforcoDias != null}" th:text="${v.intervaloReforcoDias} + ' dias'">365 dias</span><span th:if="${v.intervaloReforcoDias == null}" class="texto-secundario">Não informado</span></td>
+                <td data-label="Ação" sec:authorize="hasRole('ADMIN')">
                     <form th:if="${v.status == 'P'}" th:action="@{/vacinas/{id}/aplicar(id=${v.id})}" method="post">
-                        <input type="hidden" name="petId" th:value="${pet.id}">
-                        <button class="btn btn-mini" type="submit">Registrar aplicação</button>
+                        <button class="btn btn-mini" type="submit" th:attr="aria-label='Registrar aplicação de ' + ${v.nome} + ' hoje'">Registrar aplicação hoje</button>
                     </form>
-                    <span th:unless="${v.status == 'P'}" class="subtitulo">—</span>
+                    <span th:unless="${v.status == 'P'}" class="texto-secundario">Dose registrada</span>
                 </td>
-            </tr>
-            </tbody>
+            </tr></tbody>
         </table>
     </div>
-
-    <p class="rodape-links">
-        <a th:href="@{/pets}">&larr; Voltar para a lista</a>
-    </p>
+    <div class="titulo-secao"><h2>Consultas</h2><span class="texto-secundario" th:text="${#lists.size(consultas)} + ' registro(s)'">0 registros</span></div>
+    <div th:if="${#lists.isEmpty(consultas)}" class="aviso aviso-vazio">Nenhuma consulta registrada para este pet.</div>
+    <div class="painel tabela-responsiva" th:unless="${#lists.isEmpty(consultas)}">
+        <table aria-label="Consultas do pet">
+            <thead><tr><th scope="col">Data / tipo</th><th scope="col">Descrição</th><th scope="col">Profissional</th><th scope="col">Situação</th><th scope="col">Valor</th></tr></thead>
+            <tbody><tr th:each="consulta : ${consultas}">
+                <td data-label="Data / tipo"><span th:text="${#temporals.format(consulta.data, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span><span class="texto-secundario texto-bloco" th:text="${consulta.tipo}">Check-up</span></td>
+                <td data-label="Descrição" th:text="${consulta.descricao}">Avaliação de rotina</td>
+                <td data-label="Profissional" th:text="${consulta.funcionarioNome}">Veterinário</td>
+                <td data-label="Situação"><span class="selo" th:classappend="${consulta.status == 'R'} ? 'selo-ok' : (${consulta.status == 'A'} ? 'selo-pendente' : 'selo-neutro')" th:text="${consulta.statusDescricao}">Realizada</span></td>
+                <td data-label="Valor" th:text="'R$ ' + ${#numbers.formatDecimal(consulta.valor, 1, 'POINT', 2, 'COMMA')}">R$ 150,00</td>
+            </tr></tbody>
+        </table>
+    </div>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
 </main>
-
 </body>
 </html>

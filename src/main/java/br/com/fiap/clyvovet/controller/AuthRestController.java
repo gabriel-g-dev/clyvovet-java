@@ -42,12 +42,14 @@ public class AuthRestController {
     }
 
     @PostMapping("/register")
+    @io.swagger.v3.oas.annotations.security.SecurityRequirements
     @Operation(summary = "Cadastra um novo tutor e o seu login")
     public ResponseEntity<RegistroResponseDTO> registrar(@Valid @RequestBody RegistroRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(registroService.registrarTutor(dto));
     }
 
     @PostMapping("/login")
+    @io.swagger.v3.oas.annotations.security.SecurityRequirements
     @Operation(summary = "Autentica o usuário e devolve o token de acesso")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
         Authentication auth = authenticationManager.authenticate(

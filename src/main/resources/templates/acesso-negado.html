@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ClyvoVet — Acesso negado</title>
     <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 <body>
 
-<main class="container login-caixa">
+<main id="conteudo" class="container login-caixa">
     <div class="painel">
         <div class="painel-corpo">
             <h1>Acesso negado</h1>
             <p class="subtitulo">
-                Esta área é restrita à equipe da clínica (perfil ADMIN).
-                O perfil TUTOR acompanha a saúde do pet, mas não registra alterações.
+                Sua conta não tem permissão para acessar este recurso.
+                Volte ao painel para consultar os pets disponíveis para o seu perfil.
             </p>
             <a class="btn" th:href="@{/dashboard}" style="text-decoration:none; display:inline-block">
-                Voltar ao dashboard
+                Voltar ao painel
             </a>
         </div>
     </div>

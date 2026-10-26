@@ -1,78 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ClyvoVet — Cadastrar pet</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${petId != null} ? 'ClyvoVet — Editar pet' : 'ClyvoVet — Cadastrar pet'">ClyvoVet — Pet</title>
     <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 <body>
-
-<nav th:replace="~{fragmentos :: cabecalho('novo')}"></nav>
-
-<main class="container" style="max-width:640px">
-    <h1>Cadastrar pet</h1>
-    <p class="subtitulo">O pet passa a ser acompanhado pelo motor de prevenção assim que é cadastrado.</p>
-
-    <div class="painel">
-        <div class="painel-corpo">
-            <form th:action="@{/pets/salvar}" th:object="${pet}" method="post">
-
-                <div class="campo">
-                    <label for="nome">Nome</label>
-                    <input type="text" id="nome" th:field="*{nome}" maxlength="50"
-                           th:classappend="${#fields.hasErrors('nome')} ? 'invalido'">
-                    <span class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+<nav th:replace="~{fragmentos :: cabecalho(${petId != null ? 'pets' : 'novo'})}"></nav>
+<main id="conteudo" class="container formulario-container">
+    <a class="voltar" th:href="${petId != null} ? @{/pets/{id}(id=${petId})} : @{/pets}">&larr; Voltar</a>
+    <h1 th:text="${petId != null} ? 'Editar pet' : 'Cadastrar pet'">Cadastrar pet</h1>
+    <p class="subtitulo">Dados do animal e vínculo com o tutor responsável. Todos os campos são obrigatórios.</p>
+    <div class="painel"><div class="painel-corpo">
+        <form th:action="${petId != null} ? @{/pets/{id}/atualizar(id=${petId})} : @{/pets/salvar}" th:object="${pet}" method="post" novalidate>
+            <div th:if="${#fields.hasErrors('*')}" class="aviso aviso-erro" role="alert">Revise os campos indicados antes de salvar.</div>
+            <div class="campo"><label for="nome">Nome</label>
+                <input type="text" id="nome" th:field="*{nome}" maxlength="50" required autocomplete="off" th:classappend="${#fields.hasErrors('nome')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('nome')}" aria-describedby="nome-erro">
+                <span id="nome-erro" class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+            <div class="form-grid">
+                <div class="campo"><label for="especie">Espécie</label>
+                    <input type="text" id="especie" th:field="*{especie}" maxlength="50" placeholder="Cachorro, gato..." required th:classappend="${#fields.hasErrors('especie')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('especie')}" aria-describedby="especie-erro">
+                    <span id="especie-erro" class="erro-campo" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></span>
                 </div>
-
-                <div class="campo">
-                    <label for="especie">Espécie</label>
-                    <input type="text" id="especie" th:field="*{especie}" maxlength="50"
-                           placeholder="Cachorro, Gato..."
-                           th:classappend="${#fields.hasErrors('especie')} ? 'invalido'">
-                    <span class="erro-campo" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></span>
+                <div class="campo"><label for="raca">Raça</label>
+                    <input type="text" id="raca" th:field="*{raca}" maxlength="50" placeholder="Informe a raça ou SRD" required th:classappend="${#fields.hasErrors('raca')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('raca')}" aria-describedby="raca-erro">
+                    <span id="raca-erro" class="erro-campo" th:if="${#fields.hasErrors('raca')}" th:errors="*{raca}"></span>
                 </div>
-
-                <div class="campo">
-                    <label for="raca">Raça</label>
-                    <input type="text" id="raca" th:field="*{raca}" maxlength="50"
-                           th:classappend="${#fields.hasErrors('raca')} ? 'invalido'">
-                    <span class="erro-campo" th:if="${#fields.hasErrors('raca')}" th:errors="*{raca}"></span>
+                <div class="campo"><label for="dataNascimento">Data de nascimento</label>
+                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}" th:max="${hoje}" required th:classappend="${#fields.hasErrors('dataNascimento')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('dataNascimento')}" aria-describedby="dataNascimento-erro">
+                    <span id="dataNascimento-erro" class="erro-campo" th:if="${#fields.hasErrors('dataNascimento')}" th:errors="*{dataNascimento}"></span>
                 </div>
-
-                <div class="campo">
-                    <label for="dataNascimento">Data de nascimento</label>
-                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}"
-                           th:classappend="${#fields.hasErrors('dataNascimento')} ? 'invalido'">
-                    <span class="erro-campo" th:if="${#fields.hasErrors('dataNascimento')}"
-                          th:errors="*{dataNascimento}"></span>
+                <div class="campo"><label for="peso">Peso (kg)</label>
+                    <input type="number" id="peso" th:field="*{peso}" step="0.01" min="0.01" max="999.99" required inputmode="decimal" th:classappend="${#fields.hasErrors('peso')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('peso')}" aria-describedby="peso-erro">
+                    <span id="peso-erro" class="erro-campo" th:if="${#fields.hasErrors('peso')}" th:errors="*{peso}"></span>
                 </div>
-
-                <div class="campo">
-                    <label for="peso">Peso (kg)</label>
-                    <input type="number" id="peso" th:field="*{peso}" step="0.01" min="0.01" max="999.99"
-                           th:classappend="${#fields.hasErrors('peso')} ? 'invalido'">
-                    <span class="erro-campo" th:if="${#fields.hasErrors('peso')}" th:errors="*{peso}"></span>
-                </div>
-
-                <div class="campo">
-                    <label for="tutorId">Tutor responsável</label>
-                    <select id="tutorId" th:field="*{tutorId}"
-                            th:classappend="${#fields.hasErrors('tutorId')} ? 'invalido'">
-                        <option value="">Selecione o tutor</option>
-                        <option th:each="tutor : ${tutores}"
-                                th:value="${tutor.id}" th:text="${tutor.nome}">Tutor</option>
-                    </select>
-                    <span class="erro-campo" th:if="${#fields.hasErrors('tutorId')}" th:errors="*{tutorId}"></span>
-                </div>
-
-                <button class="btn" type="submit">Cadastrar pet</button>
-                <a class="btn btn-secundario" th:href="@{/pets}"
-                   style="text-decoration:none; display:inline-block">Cancelar</a>
-            </form>
-        </div>
-    </div>
+            </div>
+            <div class="campo"><label for="tutorId">Tutor responsável</label>
+                <select id="tutorId" th:field="*{tutorId}" required th:classappend="${#fields.hasErrors('tutorId')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('tutorId')}" aria-describedby="tutorId-erro">
+                    <option value="">Selecione o tutor</option><option th:each="tutor : ${tutores}" th:value="${tutor.id}" th:text="${tutor.nome} + ' — ' + ${tutor.email}">Tutor</option>
+                </select>
+                <span id="tutorId-erro" class="erro-campo" th:if="${#fields.hasErrors('tutorId')}" th:errors="*{tutorId}"></span>
+            </div>
+            <div th:if="${#lists.isEmpty(tutores)}" class="aviso aviso-vazio">Não há tutores disponíveis. Cadastre um tutor pela API antes de vincular o pet.</div>
+            <div class="acoes"><button class="btn" type="submit" th:disabled="${#lists.isEmpty(tutores)}" th:text="${petId != null} ? 'Salvar alterações' : 'Cadastrar pet'">Cadastrar pet</button>
+                <a class="btn btn-secundario" th:href="${petId != null} ? @{/pets/{id}(id=${petId})} : @{/pets}">Cancelar</a>
+            </div>
+        </form>
+    </div></div>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
 </main>
-
 </body>
 </html>

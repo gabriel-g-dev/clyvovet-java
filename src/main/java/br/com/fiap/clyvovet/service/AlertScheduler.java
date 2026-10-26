@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Os avisos vão para o log; em produção sairiam por e-mail e SMS para o tutor. */
+/** Registra pendências no log. Não envia e-mail nem SMS. */
 @Component
 public class AlertScheduler {
 
@@ -34,7 +34,7 @@ public class AlertScheduler {
             alertas += notificarPendenciasDoPet(pet);
         }
 
-        logger.info("[ClyvoVet] Varredura preventiva concluída. Notificações disparadas: {}", alertas);
+        logger.info("[ClyvoVet] Varredura preventiva concluída. Avisos registrados no log: {}", alertas);
     }
 
     private int notificarPendenciasDoPet(Pet pet) {
@@ -46,14 +46,12 @@ public class AlertScheduler {
         int alertas = 0;
         for (Vacina vacina : vacinas) {
             if (vacina.estaAtrasada()) {
-                logger.warn("[ATRASO] Tutor: {} | Pet: {} | Vacina: {} vencida em {} | E-mail para {}",
-                        pet.getDono().getNome(), pet.getNome(), vacina.getNome(),
-                        vacina.getData(), pet.getDono().getEmail());
+                logger.warn("[ATRASO] petId={} vacinaId={} vencimento={}",
+                        pet.getId(), vacina.getId(), vacina.getData());
                 alertas++;
             } else if (vacina.venceEm(DIAS_AVISO_PREVIO)) {
-                logger.info("[AGENDA] Tutor: {} | Pet: {} | Vacina: {} prevista para {} | SMS para {}",
-                        pet.getDono().getNome(), pet.getNome(), vacina.getNome(),
-                        vacina.getData(), pet.getDono().getTelefone());
+                logger.info("[AGENDA] petId={} vacinaId={} dataPrevista={}",
+                        pet.getId(), vacina.getId(), vacina.getData());
                 alertas++;
             }
         }

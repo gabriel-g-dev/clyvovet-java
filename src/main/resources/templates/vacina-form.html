@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Agendar vacina</title><link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+</head>
+<body>
+<nav th:replace="~{fragmentos :: cabecalho('pets')}"></nav>
+<main id="conteudo" class="container formulario-container">
+    <a class="voltar" th:href="@{/pets/{id}(id=${pet.id})}">&larr; Voltar para a ficha</a>
+    <h1>Agendar vacina</h1><p class="subtitulo">Pet: <strong th:text="${pet.nome}">Rex</strong>. A dose ficará pendente até o registro da aplicação.</p>
+    <div class="painel"><div class="painel-corpo">
+        <form th:action="@{/pets/{id}/vacinas/salvar(id=${pet.id})}" th:object="${vacina}" method="post" novalidate>
+            <input type="hidden" th:field="*{petId}"><input type="hidden" name="status" value="P">
+            <div th:if="${#fields.hasErrors('*')}" class="aviso aviso-erro" role="alert">
+                Revise os campos indicados antes de agendar.
+                <p th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></p>
+            </div>
+            <div class="campo"><label for="nome">Nome da vacina</label>
+                <input id="nome" type="text" th:field="*{nome}" maxlength="50" required placeholder="Ex.: Antirrábica" th:classappend="${#fields.hasErrors('nome')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('nome')}" aria-describedby="nome-erro">
+                <span id="nome-erro" class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+            <div class="campo"><label for="dataAplicacao">Data prevista</label>
+                <input id="dataAplicacao" type="date" th:field="*{dataAplicacao}" required th:classappend="${#fields.hasErrors('dataAplicacao')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('dataAplicacao')}" aria-describedby="dataAplicacao-ajuda dataAplicacao-erro">
+                <p class="ajuda" id="dataAplicacao-ajuda">Use a data prevista também para incluir uma dose que já está atrasada.</p>
+                <span id="dataAplicacao-erro" class="erro-campo" th:if="${#fields.hasErrors('dataAplicacao')}" th:errors="*{dataAplicacao}"></span>
+            </div>
+            <div class="campo"><label for="intervaloReforcoDias">Intervalo de reforço (dias, opcional)</label>
+                <input id="intervaloReforcoDias" type="number" th:field="*{intervaloReforcoDias}" min="1" max="36500" step="1" placeholder="Ex.: 365" th:classappend="${#fields.hasErrors('intervaloReforcoDias')} ? 'invalido'" th:attr="aria-invalid=${#fields.hasErrors('intervaloReforcoDias')}" aria-describedby="reforco-ajuda reforco-erro">
+                <p class="ajuda" id="reforco-ajuda">Ao registrar a aplicação, a próxima dose será agendada a partir dessa quantidade de dias. Deixe vazio quando não houver reforço.</p>
+                <span id="reforco-erro" class="erro-campo" th:if="${#fields.hasErrors('intervaloReforcoDias')}" th:errors="*{intervaloReforcoDias}"></span>
+            </div>
+            <div class="acoes"><button class="btn" type="submit">Agendar dose</button><a class="btn btn-secundario" th:href="@{/pets/{id}(id=${pet.id})}">Cancelar</a></div>
+        </form>
+    </div></div>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+</main>
+</body>
+</html>

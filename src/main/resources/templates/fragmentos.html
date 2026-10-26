@@ -4,35 +4,46 @@
 <body>
 
 <nav th:fragment="cabecalho(ativo)" class="topo">
+    <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
     <div class="container linha">
         <a class="marca" th:href="@{/dashboard}">🐾 ClyvoVet</a>
 
-        <div class="menu">
-            <a th:href="@{/dashboard}" th:classappend="${ativo == 'dashboard'} ? 'ativo'">Dashboard</a>
-            <a th:href="@{/pets}" th:classappend="${ativo == 'pets'} ? 'ativo'">Pets</a>
+        <div class="menu" aria-label="Navegação principal">
+            <a th:href="@{/dashboard}" th:classappend="${ativo == 'dashboard'} ? 'ativo'"
+               th:attr="aria-current=${ativo == 'dashboard' ? 'page' : null}">Painel</a>
+            <a th:href="@{/pets}" th:classappend="${ativo == 'pets'} ? 'ativo'"
+               th:attr="aria-current=${ativo == 'pets' ? 'page' : null}">Pets</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/pets/novo}"
                th:classappend="${ativo == 'novo'} ? 'ativo'">Cadastrar pet</a>
-            <a th:href="@{/swagger-ui.html}">API</a>
         </div>
 
         <div class="usuario">
-            <span th:text="${usuario}">usuário</span>
-            <span sec:authorize="hasRole('ADMIN')" class="tag tag-admin">ADMIN</span>
-            <span sec:authorize="hasRole('TUTOR')" class="tag tag-tutor">TUTOR</span>
+            <span class="usuario-nome" sec:authentication="name">usuário</span>
+            <span sec:authorize="hasRole('ADMIN')" class="tag tag-admin">Clínica</span>
+            <span sec:authorize="hasRole('TUTOR')" class="tag tag-tutor">Tutor</span>
             <form th:action="@{/logout}" method="post"><button class="btn-sair" type="submit">Sair</button></form>
         </div>
     </div>
 </nav>
 
 <div th:fragment="avisos">
-    <div th:if="${sucesso}" class="aviso aviso-ok" th:text="${sucesso}"></div>
-    <div th:if="${erro}" class="aviso aviso-erro" th:text="${erro}"></div>
+    <div th:if="${sucesso}" class="aviso aviso-ok" role="status" th:text="${sucesso}"></div>
+    <div th:if="${erro}" class="aviso aviso-erro" role="alert" th:text="${erro}"></div>
 </div>
 
 <span th:fragment="selo(status)"
       class="selo"
       th:classappend="${status == 'A'} ? 'selo-ok' : 'selo-pendente'"
       th:text="${status == 'A'} ? 'Aplicada' : 'Pendente'">Pendente</span>
+
+<span th:fragment="situacaoVacina(v)" class="selo"
+      th:classappend="${v.status == 'A'} ? 'selo-ok' : (${v.data.isBefore(hoje)} ? 'selo-atrasado' : 'selo-pendente')"
+      th:text="${v.status == 'A'} ? 'Aplicada' : (${v.data.isBefore(hoje)} ? 'Atrasada' : 'Agendada')">Agendada</span>
+
+<footer th:fragment="rodape" class="rodape-links">
+    <span>ClyvoVet · Acompanhamento preventivo</span>
+    <a th:href="@{/swagger-ui.html}">Documentação da API</a>
+</footer>
 
 </body>
 </html>

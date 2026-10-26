@@ -4,10 +4,11 @@ import br.com.fiap.clyvovet.dto.DonoRequestDTO;
 import br.com.fiap.clyvovet.dto.DonoResponseDTO;
 import br.com.fiap.clyvovet.dto.PetResponseDTO;
 import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
+import br.com.fiap.clyvovet.exception.RegraNegocioException;
 import br.com.fiap.clyvovet.model.Dono;
 import br.com.fiap.clyvovet.repository.DonoRepository;
+import br.com.fiap.clyvovet.repository.UsuarioRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,14 +19,20 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/tutores")
 @CacheConfig(cacheNames = {"Donoes", "Dono", "DonoEmail", "DonoPets"})
 public class DonoController {
 
-    @Autowired
-    private DonoRepository repository;
+    private final DonoRepository repository;
+    private final UsuarioRepository usuarioRepository;
+
+    public DonoController(DonoRepository repository, UsuarioRepository usuarioRepository) {
+        this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
     @GetMapping
     @Cacheable(value = "Donoes")
@@ -45,7 +52,7 @@ public class DonoController {
     @Cacheable(value = "DonoEmail", key = "#email")
     @Transactional(readOnly = true)
     public ResponseEntity<DonoResponseDTO> buscarPorEmail(@PathVariable String email) {
-        return repository.findByEmail(email)
+        return repository.findByEmail(normalizarEmail(email))
                 .map(dono -> ResponseEntity.ok(mapToResponseDTO(dono)))
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
     }
@@ -61,7 +68,9 @@ public class DonoController {
 
     @PostMapping
     @CacheEvict(allEntries = true)
+    @Transactional
     public ResponseEntity<DonoResponseDTO> criar(@Valid @RequestBody DonoRequestDTO dto) {
+        validarEmailDisponivel(normalizarEmail(dto.getEmail()), null);
         Dono dono = mapToEntity(dto);
         Dono salvo = repository.save(dono);
         return ResponseEntity.status(201).body(mapToResponseDTO(salvo));
@@ -69,17 +78,28 @@ public class DonoController {
 
     @PutMapping("/{id}")
     @CacheEvict(allEntries = true)
+    @Transactional
     public ResponseEntity<DonoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody DonoRequestDTO dto) {
-        if (!repository.existsById(id))
-            throw new RecursoNaoEncontradoException("Dono não encontrado");
-        Dono dono = mapToEntity(dto);
-        dono.setId(id);
+        Dono dono = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
+        String email = normalizarEmail(dto.getEmail());
+        if (!email.equals(dono.getEmail())) {
+            if (usuarioRepository.findByEmail(dono.getEmail()).isPresent()) {
+                throw new RegraNegocioException(
+                        "O e-mail deste tutor está vinculado a um login e não pode ser alterado por este cadastro");
+            }
+            validarEmailDisponivel(email, id);
+        }
+        dono.setNome(dto.getNome().trim());
+        dono.setEmail(email);
+        dono.setTelefone(dto.getTelefone().trim());
         Dono salvo = repository.save(dono);
         return ResponseEntity.ok(mapToResponseDTO(salvo));
     }
 
     @DeleteMapping("/{id}")
     @CacheEvict(allEntries = true)
+    @Transactional
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repository.existsById(id))
             throw new RecursoNaoEncontradoException("Dono não encontrado");
@@ -121,9 +141,21 @@ public class DonoController {
     private Dono mapToEntity(DonoRequestDTO dto) {
         if (dto == null) return null;
         Dono dono = new Dono();
-        dono.setNome(dto.getNome());
-        dono.setEmail(dto.getEmail());
-        dono.setTelefone(dto.getTelefone());
+        dono.setNome(dto.getNome().trim());
+        dono.setEmail(normalizarEmail(dto.getEmail()));
+        dono.setTelefone(dto.getTelefone().trim());
         return dono;
+    }
+
+    private String normalizarEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private void validarEmailDisponivel(String email, Long tutorId) {
+        boolean outroTutor = repository.findByEmail(email)
+                .filter(tutor -> !tutor.getId().equals(tutorId)).isPresent();
+        if (outroTutor || usuarioRepository.findByEmail(email).isPresent()) {
+            throw new RegraNegocioException("E-mail já vinculado a outro cadastro. Use um e-mail diferente.");
+        }
     }
 }

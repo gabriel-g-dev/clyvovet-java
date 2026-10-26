@@ -1,59 +1,46 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ClyvoVet — Pets</title>
-    <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClyvoVet — Pets</title><link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 <body>
-
 <nav th:replace="~{fragmentos :: cabecalho('pets')}"></nav>
-
-<main class="container">
+<main id="conteudo" class="container">
     <div th:replace="~{fragmentos :: avisos}"></div>
-
-    <h1>Pets</h1>
-    <p class="subtitulo">Clique em um pet para ver a análise preventiva e dar baixa nas vacinas.</p>
-
-    <div th:if="${#lists.isEmpty(pets)}" class="aviso aviso-vazio">
-        Nenhum pet cadastrado ainda.
+    <div class="titulo-pagina">
+        <div><p class="sobretitulo">Cadastro e prevenção</p><h1>Pets</h1><p class="subtitulo">Abra a ficha para ver vacinas, consultas e recomendações de acompanhamento.</p></div>
+        <a class="btn" sec:authorize="hasRole('ADMIN')" th:href="@{/pets/novo}">Cadastrar pet</a>
     </div>
-
-    <div class="painel" th:unless="${#lists.isEmpty(pets)}">
-        <table>
-            <thead>
-            <tr>
-                <th>Pet</th>
-                <th>Espécie</th>
-                <th>Raça</th>
-                <th>Idade</th>
-                <th>Tutor</th>
-                <th>Pendências</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="pet : ${pets}">
-                <td><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
-                <td th:text="${pet.especie}">Cachorro</td>
-                <td th:text="${pet.raca}">Golden</td>
-                <td th:text="${pet.idade}">3 anos</td>
-                <td th:text="${pet.tutorNome}">Gabriel</td>
-                <td>
-                    <span th:if="${pet.vacinasPendentes > 0}" class="selo selo-pendente"
-                          th:text="${pet.vacinasPendentes} + ' vacina(s)'">2 vacina(s)</span>
-                    <span th:if="${pet.vacinasPendentes == 0}" class="selo selo-ok">em dia</span>
+    <form class="busca" th:action="@{/pets}" method="get" role="search">
+        <div><label for="q">Buscar pet</label><input type="search" id="q" name="q" th:value="${busca}" placeholder="Nome, espécie, raça ou tutor" maxlength="100"></div>
+        <button class="btn" type="submit">Buscar</button><a th:if="${!#strings.isEmpty(busca)}" class="btn btn-secundario" th:href="@{/pets}">Limpar</a>
+    </form>
+    <p class="resultado-busca" th:text="${#lists.size(pets)} + ' de ' + ${totalPets} + ' pets'">0 pets</p>
+    <div th:if="${#lists.isEmpty(pets)}" class="aviso aviso-vazio">
+        <strong th:text="${#strings.isEmpty(busca)} ? 'Nenhum pet cadastrado ainda.' : 'Nenhum pet encontrado para esta busca.'">Nenhum pet encontrado.</strong>
+        <p th:if="${!#strings.isEmpty(busca)}">Tente outro nome ou limpe a busca para ver todos os pets.</p>
+        <p th:if="${#strings.isEmpty(busca)}" sec:authorize="hasRole('ADMIN')">Use “Cadastrar pet” para começar o acompanhamento.</p>
+        <p th:if="${#strings.isEmpty(busca)}" sec:authorize="hasRole('TUTOR')">Os pets vinculados à sua conta aparecerão aqui.</p>
+    </div>
+    <div class="painel tabela-responsiva" th:unless="${#lists.isEmpty(pets)}">
+        <table aria-label="Pets acompanhados">
+            <thead><tr><th scope="col">Pet</th><th scope="col">Espécie / raça</th><th scope="col">Idade</th><th scope="col">Tutor</th><th scope="col">Calendário vacinal</th></tr></thead>
+            <tbody><tr th:each="pet : ${pets}">
+                <td data-label="Pet"><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
+                <td data-label="Espécie / raça"><span th:text="${pet.especie}">Cachorro</span><span class="texto-secundario texto-bloco" th:text="${pet.raca}">Golden</span></td>
+                <td data-label="Idade" th:text="${pet.idade}">3 anos</td>
+                <td data-label="Tutor" th:text="${pet.tutorNome}">Gabriel</td>
+                <td data-label="Calendário">
+                    <span th:if="${#lists.isEmpty(pet.vacinas)}" class="selo selo-neutro">Sem registros</span>
+                    <span th:if="${pet.vacinasPendentes > 0}" class="selo selo-pendente" th:text="${pet.vacinasPendentes} + (${pet.vacinasPendentes == 1} ? ' dose pendente' : ' doses pendentes')">2 doses pendentes</span>
+                    <span th:if="${!#lists.isEmpty(pet.vacinas) and pet.vacinasPendentes == 0}" class="selo selo-ok">Sem doses pendentes</span>
                 </td>
-            </tr>
-            </tbody>
+            </tr></tbody>
         </table>
     </div>
-
-    <p class="rodape-links" sec:authorize="hasRole('ADMIN')">
-        <a th:href="@{/pets/novo}">+ Cadastrar novo pet</a>
-    </p>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
 </main>
-
 </body>
 </html>

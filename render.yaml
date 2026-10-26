@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: clyvovet-java
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: demo
+      - key: CLYVOVET_JWT_SECRET
+        generateValue: true

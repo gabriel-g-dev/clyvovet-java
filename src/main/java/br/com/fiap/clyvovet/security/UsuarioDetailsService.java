@@ -23,7 +23,7 @@ public class UsuarioDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // O cliente pode enviar o e-mail com maiúsculas; o cadastro grava sempre em minúsculas.
-        Usuario usuario = usuarioRepository.findByEmail(email.trim().toLowerCase())
+        Usuario usuario = usuarioRepository.findByEmail(email.trim().toLowerCase(java.util.Locale.ROOT))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
         return User.withUsername(usuario.getEmail())

@@ -2,6 +2,7 @@ package br.com.fiap.clyvovet.security;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -51,7 +52,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
 
                 .requestMatchers("/api/medicamentos/**").hasRole(ADMIN)
                 .requestMatchers("/api/tutores/**").hasRole(ADMIN)
@@ -73,7 +74,6 @@ public class SecurityConfig {
                 .anyRequest().hasRole(ADMIN)
             )
             .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(basic -> {})
             // 401 puro, sem WWW-Authenticate, para não abrir o popup do navegador.
             .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
@@ -82,19 +82,27 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain webFilterChain(HttpSecurity http,
+            @Value("${spring.h2.console.enabled:false}") boolean consoleH2Habilitado) throws Exception {
         http
             // O console do H2 posta formulários próprios, sem o token CSRF da aplicação.
-            .csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()))
+            .csrf(csrf -> {
+                if (consoleH2Habilitado) {
+                    csrf.ignoringRequestMatchers(PathRequest.toH2Console());
+                }
+            })
             // O console do H2 roda dentro de um <frame>.
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                .requestMatchers("/login", "/error").permitAll()
+                .requestMatchers("/h2-console", "/h2-console/**").access((authentication, context) ->
+                        new org.springframework.security.authorization.AuthorizationDecision(consoleH2Habilitado))
+                .requestMatchers("/login", "/error", "/health").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // O painel web é a ferramenta da clínica: o tutor cadastra pela API.
-                .requestMatchers("/pets/novo", "/pets/salvar", "/vacinas/*/aplicar").hasRole(ADMIN)
+                .requestMatchers("/pets/novo", "/pets/salvar", "/vacinas/*/aplicar",
+                        "/pets/*/editar", "/pets/*/atualizar", "/pets/*/vacinas/novo",
+                        "/pets/*/vacinas/salvar").hasRole(ADMIN)
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

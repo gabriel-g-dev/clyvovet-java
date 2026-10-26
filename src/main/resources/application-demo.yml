@@ -1,0 +1,18 @@
+# Demonstracao publica: dados ficticios, recriados a cada reinicio.
+spring:
+  h2:
+    console:
+      enabled: false
+  thymeleaf:
+    cache: true
+
+server:
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        secure: ${CLYVOVET_COOKIE_SECURE:true}
+
+clyvovet:
+  jwt:
+    secret: ${CLYVOVET_JWT_SECRET}

@@ -1,0 +1,28 @@
+name: Java CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build e testes
+        run: sh mvnw -B -ntp verify
+      - name: Relatorios de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testes-java
+          path: target/surefire-reports/

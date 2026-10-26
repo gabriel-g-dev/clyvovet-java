@@ -1,4 +1,4 @@
-# 📊 Diagramas e Arquitetura — ClyvoVet Java API
+# Diagramas e arquitetura — ClyvoVet
 
 Modelagem das entidades, arquitetura macro e desenho do banco da aplicação Spring Boot da ClyvoVet.
 
@@ -20,7 +20,7 @@ graph TD
 
     Service[Camada de Service<br/>PetService · ConsultaService · VacinaService<br/>IntelligenceService · BaixaVacinaService<br/>RegistroService · PainelService]
     Repo[Repositories<br/>Spring Data JPA]
-    Banco[(H2 / Oracle<br/>schema versionado pelo Flyway)]
+    Banco[(H2<br/>schema versionado pelo Flyway)]
     Cache[(Spring Cache)]
 
     Navegador -->|HTML| Security
@@ -29,7 +29,8 @@ graph TD
     Security --> Rest
     Web --> Service
     Rest --> Service
-    Rest -.-> Cache
+    Rest -->|CRUDs auxiliares| Repo
+    Service -.-> Cache
     Service --> Repo
     Repo --> Banco
 ```
@@ -39,12 +40,14 @@ graph TD
 | Camada | Responsabilidade |
 | :--- | :--- |
 | **security** | Autenticação (BCrypt na tabela `USUARIOS`), emissão e validação do JWT, e as regras de quem acessa o quê |
-| **controller** | Recebe a requisição, valida o DTO e delega. Não contém regra de negócio |
+| **controller** | Recebe a requisição e valida o DTO. Delega os fluxos aos services; os CRUDs auxiliares de tutores, funcionários e medicamentos usam repositories diretamente |
 | **service** | Onde vivem as regras: score preventivo, baixa de vacina com reforço, cadastro de pet, montagem do painel |
 | **repository** | `JpaRepository` com query methods |
 | **model** | Entidades JPA. Regras próprias do calendário vacinal ficam na entidade `Vacina` |
 | **dto** | Contratos de entrada e saída + Bean Validation |
-| **exception** | Exceções de domínio e o `@RestControllerAdvice` que traduz cada uma para o status HTTP correto |
+| **exception** | Exceções de domínio e tratamento de falhas por status HTTP; o painel usa feedback e páginas próprias |
+
+O perfil local e o `demo` usam H2 em memória. O perfil `persistente` usa H2 em arquivo numa única instância. O POM contém driver Oracle, mas a execução nesse banco não está validada nesta entrega. Consulte [Deploy](deploy.md).
 
 ---
 
@@ -293,7 +296,7 @@ flowchart TD
     C -->|Sim| C2{Alguma atrasada?}
     C2 -->|Sim| C3[-15 por vacina + marca atraso]
     C2 -->|Vence em 8 dias| C4[Aviso preventivo]
-    B --> D{Tem consultas?}
+    B --> D{Tem consulta realizada<br/>em data não futura?}
     D -->|Não| D1[-30 pontos]
     D -->|Última há mais de 1 ano| D2[-20 pontos]
     C1 & C3 & C4 & D1 & D2 --> E[classificarEngajamento]
@@ -316,10 +319,8 @@ sequenceDiagram
 
     Cli->>Ctrl: POST /api/vacinas/{id}/aplicar
     Ctrl->>Svc: aplicar(id, dataAplicacao)
-    Svc->>Repo: findById(id)
+    Svc->>Repo: buscar dose com bloqueio de escrita
     alt vacina já aplicada
-        Svc-->>Cli: 409 Conflict
-    else data no futuro
         Svc-->>Cli: 409 Conflict
     else
         Svc->>Repo: salva com status A
@@ -328,3 +329,7 @@ sequenceDiagram
         Svc-->>Cli: 200 com dose aplicada + próxima dose
     end
 ```
+
+Na API, `AplicacaoVacinaRequestDTO` rejeita `dataAplicacao` futura com **400 Bad Request**, antes do service. O service mantém a verificação como defesa adicional. Uma vacina já aplicada retorna **409 Conflict**. A baixa bloqueia a linha para evitar duas aplicações concorrentes e invalida o cache de acompanhamento. O cache usa também a data do cálculo, para não reutilizar o resultado de um dia anterior.
+
+O score expressa acompanhamento dos registros, não diagnóstico. A varredura periódica registra pendências no log; não há integração de entrega de e-mail ou SMS.

@@ -1,0 +1,22 @@
+# Instancia unica com arquivo H2 em volume persistente. A massa inicial
+# continua ficticia; este perfil nao transforma a demonstracao em producao.
+spring:
+  datasource:
+    url: jdbc:h2:file:${CLYVOVET_DATA_PATH:./data/clyvovet};DB_CLOSE_ON_EXIT=FALSE
+    password: ${CLYVOVET_DB_PASSWORD}
+  h2:
+    console:
+      enabled: false
+  thymeleaf:
+    cache: true
+
+server:
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        secure: ${CLYVOVET_COOKIE_SECURE:true}
+
+clyvovet:
+  jwt:
+    secret: ${CLYVOVET_JWT_SECRET}

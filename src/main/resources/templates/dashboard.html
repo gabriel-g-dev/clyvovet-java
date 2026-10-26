@@ -1,73 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ClyvoVet — Dashboard</title>
+    <title>ClyvoVet — Painel</title>
     <link rel="stylesheet" th:href="@{/css/clyvovet.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 <body>
-
 <nav th:replace="~{fragmentos :: cabecalho('dashboard')}"></nav>
-
-<main class="container">
+<main id="conteudo" class="container">
     <div th:replace="~{fragmentos :: avisos}"></div>
-
-    <h1>Dashboard</h1>
-    <p class="subtitulo">Visão geral do acompanhamento preventivo da clínica.</p>
-
+    <div class="titulo-pagina">
+        <div>
+            <p class="sobretitulo">Acompanhamento preventivo</p>
+            <h1>Painel de cuidados</h1>
+            <p class="subtitulo" sec:authorize="hasRole('ADMIN')">Vacinas e histórico dos pets acompanhados pela clínica.</p>
+            <p class="subtitulo" sec:authorize="hasRole('TUTOR')">Acompanhe o calendário e os cuidados dos seus pets.</p>
+        </div>
+        <a class="btn" sec:authorize="hasRole('ADMIN')" th:href="@{/pets/novo}">Cadastrar pet</a>
+    </div>
     <div class="cartoes">
-        <div class="cartao">
-            <p class="rotulo">Pets acompanhados</p>
-            <p class="numero" th:text="${totalPets}">0</p>
-        </div>
-        <div class="cartao">
-            <p class="rotulo">Vacinas pendentes</p>
-            <p class="numero numero-alerta" th:text="${totalPendentes}">0</p>
-        </div>
+        <div class="cartao"><p class="rotulo">Pets acompanhados</p><p class="numero" th:text="${totalPets}">0</p></div>
+        <div class="cartao"><p class="rotulo">Doses pendentes</p><p class="numero numero-alerta" th:text="${totalPendentes}">0</p><p class="ajuda">Inclui doses futuras e atrasadas</p></div>
+        <div class="cartao"><p class="rotulo">Doses atrasadas</p><p class="numero numero-erro" th:text="${totalAtrasadas}">0</p><p class="ajuda">Prioridade para acompanhamento</p></div>
     </div>
-
-    <h2>Calendário vacinal por pet</h2>
-
+    <div class="titulo-secao"><h2>Calendário vacinal por pet</h2><a th:href="@{/pets}">Ver todos os pets</a></div>
     <div th:if="${#lists.isEmpty(pets)}" class="aviso aviso-vazio">
-        Nenhum pet cadastrado ainda.
+        <strong>Nenhum pet acompanhado ainda.</strong>
+        <p sec:authorize="hasRole('ADMIN')">Cadastre o primeiro pet e agende as doses para começar.</p>
+        <p sec:authorize="hasRole('TUTOR')">Os pets vinculados à sua conta aparecerão aqui.</p>
     </div>
-
-    <div class="painel" th:unless="${#lists.isEmpty(pets)}">
-        <table>
-            <thead>
-            <tr>
-                <th>Pet</th>
-                <th>Espécie</th>
-                <th>Idade</th>
-                <th>Tutor</th>
-                <th>Calendário vacinal</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="pet : ${pets}">
-                <td><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
-                <td th:text="${pet.especie}">Cachorro</td>
-                <td th:text="${pet.idade}">3 anos</td>
-                <td th:text="${pet.tutorNome}">Gabriel</td>
-                <td>
-                    <span th:if="${#lists.isEmpty(pet.vacinas)}" class="subtitulo">sem registros</span>
-                    <div th:each="v : ${pet.vacinas}" style="margin-bottom:5px">
-                        <span th:replace="~{fragmentos :: selo(${v.status})}"></span>
-                        <span th:text="${v.nome}">Antirrábica</span>
-                        <span class="subtitulo" th:text="'· ' + ${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</span>
+    <div class="painel tabela-responsiva" th:unless="${#lists.isEmpty(pets)}">
+        <table aria-label="Calendário vacinal por pet">
+            <thead><tr><th scope="col">Pet</th><th scope="col">Espécie / idade</th><th scope="col">Tutor</th><th scope="col">Calendário vacinal</th></tr></thead>
+            <tbody><tr th:each="pet : ${pets}">
+                <td data-label="Pet"><a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Rex</a></td>
+                <td data-label="Espécie / idade"><span th:text="${pet.especie}">Cachorro</span><span class="texto-secundario texto-bloco" th:text="${pet.idade}">3 anos</span></td>
+                <td data-label="Tutor" th:text="${pet.tutorNome}">Gabriel</td>
+                <td data-label="Calendário">
+                    <span th:if="${#lists.isEmpty(pet.vacinas)}" class="texto-secundario">Sem registros</span>
+                    <div class="lista-vacinas">
+                        <div th:each="v : ${pet.vacinas}">
+                            <span th:replace="~{fragmentos :: situacaoVacina(${v})}"></span>
+                            <span th:text="${v.nome}">Antirrábica</span>
+                            <span class="texto-secundario" th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}">01/01/2026</span>
+                        </div>
                     </div>
                 </td>
-            </tr>
-            </tbody>
+            </tr></tbody>
         </table>
     </div>
-
-    <p class="rodape-links">
-        <a th:href="@{/swagger-ui.html}">Swagger UI</a> ·
-        <a th:href="@{/h2-console}">Console H2</a>
-    </p>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
 </main>
-
 </body>
 </html>

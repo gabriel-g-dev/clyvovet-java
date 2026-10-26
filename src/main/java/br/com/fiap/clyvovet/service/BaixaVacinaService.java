@@ -8,6 +8,7 @@ import br.com.fiap.clyvovet.service.BaixaVacinaResultado.Reforco;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -29,8 +30,9 @@ public class BaixaVacinaService {
     }
 
     @Transactional
+    @CacheEvict(value = "inteligenciaPreventiva", allEntries = true)
     public BaixaVacinaResultado aplicar(Long vacinaId, LocalDate dataAplicacao) {
-        Vacina vacina = vacinaRepository.findById(vacinaId)
+        Vacina vacina = vacinaRepository.buscarParaAplicacao(vacinaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Vacina não encontrada com o ID " + vacinaId));
 
         if (STATUS_APLICADA.equals(vacina.getStatus())) {

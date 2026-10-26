@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ClyvoVet — Não foi possível continuar</title><link rel="stylesheet" th:href="@{/css/clyvovet.css}">    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+</head>
+<body><main id="conteudo" class="container login-caixa"><div class="painel"><div class="painel-corpo">
+    <p class="sobretitulo" th:text="'Erro ' + ${status}">Erro</p><h1 th:text="${titulo}">Não foi possível continuar</h1>
+    <p class="subtitulo" th:text="${mensagem}">Revise a operação e tente novamente.</p><a class="btn" th:href="@{/pets}">Voltar para os pets</a>
+</div></div></main></body>
+</html>

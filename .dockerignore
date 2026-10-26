@@ -1,0 +1,10 @@
+.git
+.github
+.mvn
+target
+data
+documents
+.env
+.env.*
+*.log
+material-local

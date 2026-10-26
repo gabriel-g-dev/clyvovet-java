@@ -36,7 +36,7 @@ public class IntelligenceService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "inteligenciaPreventiva", key = "#petId")
+    @Cacheable(value = "inteligenciaPreventiva", key = "{#petId, T(java.time.LocalDate).now()}")
     public HealthDashboardResponseDTO calcularPorPetId(Long petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pet não encontrado com o ID " + petId));
@@ -100,7 +100,11 @@ public class IntelligenceService {
         }
 
         LocalDateTime ultima = ultimaConsultaRealizada(consultas);
-        if (ultima != null) {
+        if (ultima == null) {
+            analise.penalizar(PENALIDADE_SEM_REGISTRO);
+            analise.recomendar("Nenhuma consulta realizada registrada. Agende uma avaliação inicial de rotina para "
+                    + pet.getNome() + ". Consultas agendadas ou canceladas não substituem o check-up.");
+        } else {
             if (ultima.toLocalDate().isBefore(LocalDate.now().minusYears(1))) {
                 analise.penalizar(PENALIDADE_CHECKUP_VENCIDO);
                 analise.recomendar("⚠️ PREVENÇÃO: a última consulta de " + pet.getNome() + " foi em "
@@ -114,7 +118,7 @@ public class IntelligenceService {
         Consulta proxima = proximaConsultaAgendada(consultas);
         if (proxima != null) {
             analise.recomendar("📅 AGENDA: há consulta marcada para " + proxima.getData().format(DATA_HORA)
-                    + " com " + proxima.getFuncionario().getNome() + ".");
+                    + (proxima.getFuncionario() != null ? " com " + proxima.getFuncionario().getNome() : "") + ".");
         }
     }
 
@@ -124,7 +128,8 @@ public class IntelligenceService {
 
         for (Consulta consulta : consultas) {
             LocalDateTime data = consulta.getData();
-            if (data != null && data.isBefore(agora) && (ultima == null || data.isAfter(ultima))) {
+            if ("R".equals(consulta.getStatus()) && data != null && !data.isAfter(agora)
+                    && (ultima == null || data.isAfter(ultima))) {
                 ultima = data;
             }
         }

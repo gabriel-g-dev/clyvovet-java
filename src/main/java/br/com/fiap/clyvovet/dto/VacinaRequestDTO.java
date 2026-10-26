@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
 
@@ -15,6 +18,7 @@ public class VacinaRequestDTO {
     private String nome;
 
     @NotNull(message = "Data de aplicação é obrigatória")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dataAplicacao;
 
     @NotBlank(message = "Status é obrigatório")
@@ -26,6 +30,12 @@ public class VacinaRequestDTO {
 
     @NotNull(message = "ID do pet é obrigatório")
     private Long petId;
+
+    @JsonIgnore
+    @AssertTrue(message = "Vacina aplicada não pode ter data no futuro")
+    public boolean isDataCoerenteComStatus() {
+        return !"A".equals(status) || dataAplicacao == null || !dataAplicacao.isAfter(LocalDate.now());
+    }
 
     public String getNome() { return nome; } public void setNome(String nome) { this.nome = nome; }
     public LocalDate getDataAplicacao() { return dataAplicacao; } public void setDataAplicacao(LocalDate dataAplicacao) { this.dataAplicacao = dataAplicacao; }
