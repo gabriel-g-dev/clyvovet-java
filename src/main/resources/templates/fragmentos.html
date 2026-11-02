@@ -14,7 +14,8 @@
             <a th:href="@{/pets}" th:classappend="${ativo == 'pets'} ? 'ativo'"
                th:attr="aria-current=${ativo == 'pets' ? 'page' : null}">Pets</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/pets/novo}"
-               th:classappend="${ativo == 'novo'} ? 'ativo'">Cadastrar pet</a>
+               th:classappend="${ativo == 'novo'} ? 'ativo'"
+               th:attr="aria-current=${ativo == 'novo' ? 'page' : null}">Cadastrar pet</a>
         </div>
 
         <div class="usuario">
@@ -30,11 +31,6 @@
     <div th:if="${sucesso}" class="aviso aviso-ok" role="status" th:text="${sucesso}"></div>
     <div th:if="${erro}" class="aviso aviso-erro" role="alert" th:text="${erro}"></div>
 </div>
-
-<span th:fragment="selo(status)"
-      class="selo"
-      th:classappend="${status == 'A'} ? 'selo-ok' : 'selo-pendente'"
-      th:text="${status == 'A'} ? 'Aplicada' : 'Pendente'">Pendente</span>
 
 <span th:fragment="situacaoVacina(v)" class="selo"
       th:classappend="${v.status == 'A'} ? 'selo-ok' : (${v.data.isBefore(hoje)} ? 'selo-atrasado' : 'selo-pendente')"

@@ -34,7 +34,7 @@ class RegistroTutorTest {
 
     private String corpo(String email) {
         return """
-                {"nome":"Tutor Novo","email":"%s","telefone":"(11) 90000-0000","senha":"segredo123"}
+                {"nome":"Tutor Novo","email":"%s","telefone":"(11) 90000-0000","senha":"senha-fixture-2026"}
                 """.formatted(email);
     }
 
@@ -59,9 +59,9 @@ class RegistroTutorTest {
                 .andExpect(status().isCreated());
 
         String armazenada = usuarioRepository.findByEmail("hash@teste.com").orElseThrow().getSenha();
-        assertNotEquals("segredo123", armazenada);
+        assertNotEquals("senha-fixture-2026", armazenada);
         assertTrue(armazenada.startsWith("$2"));
-        assertTrue(passwordEncoder.matches("segredo123", armazenada));
+        assertTrue(passwordEncoder.matches("senha-fixture-2026", armazenada));
     }
 
     @Test
@@ -69,7 +69,7 @@ class RegistroTutorTest {
     void clienteNaoEscolheOPerfil() throws Exception {
         String tentativa = """
                 {"nome":"Invasor","email":"invasor@teste.com","telefone":"(11) 90000-0000",
-                 "senha":"segredo123","role":"ROLE_ADMIN","perfil":"ADMIN"}
+                 "senha":"senha-fixture-2026","role":"ROLE_ADMIN","perfil":"ADMIN"}
                 """;
 
         mockMvc.perform(post("/api/auth/register")

@@ -36,8 +36,9 @@ function Iniciar-AplicacaoTeste([string]$fase) {
 }
 
 function Obter-HeadersTeste {
+    $credenciais = @{ email = 'admin@clyvovet.com.br'; senha = 'admin123' } | ConvertTo-Json
     $login = Invoke-RestMethod -Uri "$enderecoTeste/api/auth/login" -Method Post -ContentType 'application/json' `
-        -Body '{"email":"admin@clyvovet.com.br","senha":"admin123"}'
+        -Body $credenciais
     return @{ Authorization = "Bearer $($login.token)" }
 }
 

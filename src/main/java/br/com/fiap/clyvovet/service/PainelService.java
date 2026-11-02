@@ -33,8 +33,8 @@ public class PainelService {
     @Transactional(readOnly = true)
     public List<PetDashboardDTO> listarPets() {
         List<Pet> encontrados = escopo.ehAdmin()
-                ? petRepository.findAll()
-                : petRepository.findByDonoEmail(escopo.emailDoUsuarioLogado());
+                ? petRepository.buscarParaPainel()
+                : petRepository.buscarParaPainelDoTutor(escopo.emailDoUsuarioLogado());
 
         List<PetDashboardDTO> pets = new ArrayList<>();
         for (Pet pet : encontrados) {

@@ -70,6 +70,40 @@ class BaixaVacinaServiceTest {
                 () -> baixaVacinaService.aplicar(pendente.getId(), LocalDate.now().plusDays(1)));
     }
 
+    @Test
+    void reforcoExistenteEhDevolvidoSemDuplicacao() {
+        Vacina pendente = primeiraPendenteComReforco();
+        Vacina reforco = new Vacina();
+        reforco.setNome(pendente.getNome());
+        reforco.setPet(pendente.getPet());
+        reforco.setData(LocalDate.now().plusDays(pendente.getIntervaloReforcoDias()));
+        reforco.setStatus(BaixaVacinaService.STATUS_PENDENTE);
+        reforco.setIntervaloReforcoDias(pendente.getIntervaloReforcoDias());
+        reforco = vacinaRepository.saveAndFlush(reforco);
+        long total = vacinaRepository.count();
+
+        BaixaVacinaResultado resultado = baixaVacinaService.aplicar(pendente.getId(), LocalDate.now());
+
+        assertEquals(BaixaVacinaResultado.Reforco.JA_AGENDADO, resultado.reforco());
+        assertNotNull(resultado.proximaDose());
+        assertEquals(reforco.getId(), resultado.proximaDose().getId());
+        assertEquals(total, vacinaRepository.count());
+    }
+
+    @Test
+    void vacinaSemIntervaloNaoCriaDose() {
+        Vacina pendente = primeiraPendenteComReforco();
+        pendente.setIntervaloReforcoDias(null);
+        vacinaRepository.saveAndFlush(pendente);
+        long total = vacinaRepository.count();
+
+        BaixaVacinaResultado resultado = baixaVacinaService.aplicar(pendente.getId(), LocalDate.now());
+
+        assertEquals(BaixaVacinaResultado.Reforco.SEM_INTERVALO, resultado.reforco());
+        assertTrue(!resultado.temProximaDose());
+        assertEquals(total, vacinaRepository.count());
+    }
+
     private Vacina primeiraPendenteComReforco() {
         List<Vacina> pendentes = vacinaRepository.findByStatus(BaixaVacinaService.STATUS_PENDENTE);
         return pendentes.stream()

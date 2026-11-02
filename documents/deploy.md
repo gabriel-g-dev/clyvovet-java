@@ -1,62 +1,48 @@
-# Deploy do ClyvoVet
+# Deploy e configuração
 
-## Configuração
+URL do sistema: [clyvovet-java.onrender.com](https://clyvovet-java.onrender.com). O serviço usa o perfil `demo`; o Blueprint mantém a publicação automática desligada. A configuração local não altera o serviço remoto.
 
-**Não há URL pública confirmada.** O projeto contém Dockerfile e Blueprint para publicar a aplicação Java completa no Render Free.
+## Perfis
 
-A opção escolhida é o **Render, plano Free, com Docker**. O serviço executa a aplicação Java completa, incluindo páginas Thymeleaf, API e Flyway. Não é necessário separar frontend e backend.
+| Perfil | Banco e finalidade |
+| :--- | :--- |
+| Padrão | H2 em memória, com console para desenvolvimento local |
+| `demo` | H2 em memória, dados fictícios restaurados a cada reinício, console desabilitado |
+| `persistente` | H2 em arquivo, uma única instância por arquivo, console desabilitado |
 
-## Publicação gratuita
+As contas de demonstração são as mesmas nos três perfis e estão somente na seção de acesso do [README](../README.md). Não exigem cadastro, confirmação nem variáveis de provisionamento. Use exclusivamente dados fictícios na demonstração pública.
 
-1. Crie sua conta em [Render](https://dashboard.render.com/) e entre com sua conta GitHub. Se aparecer solicitação de pagamento, não conclua a contratação.
-2. Autorize acesso somente ao repositório `gabriel-g-dev/clyvovet-java`.
-3. Escolha a branch que contém os arquivos da aplicação. O Render utiliza os arquivos publicados no repositório remoto.
-4. No Render, selecione **New > Blueprint** e escolha o repositório e a branch publicada.
-5. Confira os recursos antes de aplicar: deve existir somente o web service `clyvovet-java`, com `plan: free`. Não crie PostgreSQL, disco ou outro recurso pago.
-6. O Blueprint usa `Dockerfile`, ativa o perfil `demo` e gera `CLYVOVET_JWT_SECRET`. Se criar um Web Service manualmente, escolha Docker e Free, defina `SPRING_PROFILES_ACTIVE=demo` e uma chave JWT Base64 aleatória com pelo menos 32 bytes.
-7. Aguarde o build e a verificação de saúde `/health`. Copie a URL efetivamente fornecida pelo Render.
-8. Valide os passos abaixo na URL pública e só então registre o endereço no README.
+## Variáveis de ambiente
 
-O deploy automático está desligado no Blueprint para que a equipe escolha quando publicar uma nova versão. A primeira criação do serviço ainda executa um deploy.
+| Variável | Finalidade |
+| :--- | :--- |
+| `SPRING_PROFILES_ACTIVE` | `demo` no Render; `persistente` para H2 em arquivo |
+| `CLYVOVET_JWT_SECRET` | Obrigatória em `demo` e `persistente`; chave Base64 de pelo menos 32 bytes |
+| `CLYVOVET_COOKIE_SECURE` | `true` por padrão nesses perfis; `false` somente para HTTP local |
+| `CLYVOVET_CORS_ORIGINS` | Origens externas autorizadas, separadas por vírgula; vazio por padrão nesses perfis |
+| `CLYVOVET_DB_PASSWORD` | Obrigatória em `persistente` |
+| `CLYVOVET_DATA_PATH` | Arquivo H2 em `persistente`; padrão `./data/clyvovet` |
+| `PORT` | Porta HTTP; padrão 8080 |
 
-## O que validar online
+Mantenha a chave JWT específica já configurada no Render e os cookies seguros em HTTPS. Não copie seu valor para o código, README, collection, logs ou capturas. A aplicação não carrega `.env` automaticamente. As instruções de execução local e geração de chave temporária estão no [README](../README.md#executar).
 
-- `GET /health`: HTTP 200 e `{"status":"UP"}`. O endpoint consulta o banco e não expõe configuração.
-- `/login`: formulário acessível por HTTPS.
-- ADMIN: login, painel, busca de pets, cadastro/edição, calendário e baixa com reforço.
-- TUTOR: somente seus pets, sem botões administrativos; acessar pet de outro tutor deve retornar 403.
-- `/swagger-ui.html`: documentação disponível; endpoints protegidos pedem Bearer token.
-- `/h2-console`: console indisponível no perfil `demo`.
-- Logout e novo login; navegação em desktop e celular; console do navegador sem erros inesperados.
+Para usar H2 em arquivo localmente, além da chave JWT, configure senha e caminho no ambiente e inicie o JAR com `--spring.profiles.active=persistente`. O diretório deve ser privado e ter backup. Em hospedagem, ele precisa de armazenamento que sobreviva ao reinício; o Blueprint atual não provisiona esse volume. O perfil mantém dados fictícios e não transforma a demonstração em operação clínica de produção.
 
-As credenciais do README são fictícias e públicas. Use apenas dados de demonstração nesse serviço.
+## Publicação e conferência
 
-## Limites do plano gratuito
+As alterações precisam estar na origem usada pelo serviço antes da publicação manual pela equipe. O perfil `demo` exige apenas a chave JWT já prevista na configuração; não há novas variáveis de contas a cadastrar no Render.
 
-O Render suspende serviços Free após 15 minutos sem tráfego. O primeiro acesso seguinte pode demorar para reiniciar a aplicação. A quantidade de horas gratuitas é limitada por workspace e deve ser conferida no painel.
+Depois da publicação, confira:
 
-O workspace dispõe de 750 horas gratuitas por mês, compartilhadas entre serviços Free. Banda e minutos de build também têm limites: excedentes podem gerar cobrança quando há forma de pagamento cadastrada. Não cadastre forma de pagamento nem habilite recursos pagos para esta demonstração; confira o uso no painel antes da publicação. Sem forma de pagamento, esgotar a banda suspende os serviços Free; esgotar os minutos de build bloqueia novos builds, mantendo os serviços já publicados.
+- `/health`: HTTP 200 com `{"status":"UP"}`.
+- Login com as duas contas do README e logout da sessão.
+- ADMIN: dashboard, busca, cadastro/edição de pet, vacina, aplicação e reforço.
+- TUTOR: somente os próprios pets e consultas; acesso negado a operações clínicas.
+- Formulários com CSRF, mensagens de erro, navegação desktop e mobile.
+- `/swagger-ui.html` e `/v3/api-docs`; dados da API exigindo Bearer token.
+- `/h2-console` indisponível, recursos e links carregando corretamente.
 
-O perfil `demo` usa H2 em memória. Qualquer reinicialização, suspensão ou novo deploy recria a massa inicial e perde cadastros e aplicações de vacina feitos durante a sessão anterior. Abra a aplicação com antecedência para permitir a inicialização.
-
-Não use esse modo para dados reais. Persistência durável exige volume persistente ou banco externo. O projeto inclui perfil `persistente` para testar H2 em arquivo em uma única instância, mas esse perfil **não inclui armazenamento gratuito no Render**. O Blueprint Free permanece com `demo`.
-
-## Execução do mesmo perfil localmente
-
-```powershell
-.\mvnw.cmd clean verify
-$chaveDemo = New-Object byte[] 32
-$geradorDemo = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-$geradorDemo.GetBytes($chaveDemo)
-$geradorDemo.Dispose()
-$env:CLYVOVET_JWT_SECRET = [Convert]::ToBase64String($chaveDemo)
-$env:CLYVOVET_COOKIE_SECURE = 'false' # somente HTTP local
-java -jar target/clyvovet-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo
-```
-
-Em hospedagem HTTPS, mantenha cookies seguros habilitados (padrão dos perfis publicados). `PORT` define a porta HTTP; o padrão local é 8080.
-
-Para testar persistência local, além da chave, defina `CLYVOVET_DB_PASSWORD`, `CLYVOVET_DATA_PATH` (padrão `./data/clyvovet`) e execute com `--spring.profiles.active=persistente`. Encerre e reabra a aplicação para conferir que os registros permanecem. Faça backup do arquivo e mantenha uma única instância por arquivo H2. Os usuários fictícios são inseridos apenas na primeira criação do banco.
+O script de navegador aceita somente endereços locais e cria dados. Em 02/11/2026, após timeouts iniciais, as leituras públicas de `/login`, `/health`, `/v3/api-docs` e `/swagger-ui.html` responderam HTTP 200; o health check retornou `UP`. A versão hospedada ainda exibe credenciais na tela de login e precisa receber as alterações locais. Os fluxos autenticados devem ser conferidos após a publicação manual.
 
 ## Docker
 
@@ -65,8 +51,6 @@ docker build -t clyvovet-java .
 docker run --rm -p 8080:8080 -e SPRING_PROFILES_ACTIVE=demo -e CLYVOVET_JWT_SECRET -e CLYVOVET_COOKIE_SECURE=false clyvovet-java
 ```
 
-O build executa os testes antes de criar a imagem final. O runtime usa JRE 17 e usuário sem privilégios de root. A imagem não contém o repositório Git, os arquivos `.env` ou banco local. A construção e a execução da imagem devem ser confirmadas no ambiente que realizará o deploy.
+Antes de executar o container, defina a chave JWT no ambiente do processo, conforme o README. O Dockerfile executa `verify`, empacota o JAR e usa JRE 17 com usuário sem privilégios de root. `.env` e bancos locais são excluídos pelo `.dockerignore`.
 
-## Referências da plataforma
-
-Documentação oficial: [Blueprint YAML](https://render.com/docs/blueprint-spec), [plano Free](https://render.com/docs/free), [health checks](https://render.com/docs/health-checks) e [discos persistentes](https://render.com/docs/disks).
+A imagem e seu runtime precisam ser verificados em um ambiente com Docker. No modo em memória, cadastros e aplicações se perdem a cada reinício. Antes da apresentação, confirme disponibilidade e tempo de inicialização do serviço.

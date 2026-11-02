@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -75,6 +76,13 @@ public class GlobalExceptionHandler {
                                                               HttpServletRequest request) {
         return montar(HttpStatus.BAD_REQUEST,
                 "Parâmetro '" + ex.getName() + "' recebeu um valor inválido", request, null);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ErroResponseDTO> handleOrdenacaoInvalida(PropertyReferenceException ex,
+                                                                   HttpServletRequest request) {
+        return montar(HttpStatus.BAD_REQUEST,
+                "Campo de ordenação inválido: " + ex.getPropertyName(), request, null);
     }
 
     @ExceptionHandler(AuthenticationException.class)

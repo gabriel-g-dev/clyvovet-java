@@ -52,6 +52,8 @@ springdoc:
     path: /v3/api-docs
 
 clyvovet:
+  cors:
+    allowed-origin-patterns: ${CLYVOVET_CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*,http://192.168.*.*:*,exp://*}
   jwt:
     # Chave apenas de desenvolvimento/demonstracao. Em producao defina a
     # variavel de ambiente CLYVOVET_JWT_SECRET com uma chave propria.

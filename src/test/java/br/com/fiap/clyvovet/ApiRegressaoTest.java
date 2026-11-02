@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,7 @@ class ApiRegressaoTest {
 
     @Autowired private MockMvc mvc;
     @Autowired private ObjectMapper objectMapper;
+    @Autowired private CacheManager cacheManager;
 
     @Test
     void loginJwtRealAutorizaPetDoTutorERejeitaPetDeOutro() throws Exception {
@@ -72,6 +74,43 @@ class ApiRegressaoTest {
                 {"nome":"Teste","dataAplicacao":"%s","status":"A","petId":1}
                 """.formatted(LocalDate.now().plusDays(1))))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@clyvovet.com.br", roles = "ADMIN")
+    void ordenacaoPorCampoInexistenteRetornaErroDeParametro() throws Exception {
+        for (String recurso : new String[]{"pets", "consultas", "vacinas"}) {
+            mvc.perform(get("/api/" + recurso).param("sort", "inexistente,asc"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.mensagem").value("Campo de ordenação inválido: inexistente"));
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "admin@clyvovet.com.br", roles = "ADMIN")
+    void edicaoDeFuncionarioAtualizaRecomendacaoJaConsultada() throws Exception {
+        var cache = cacheManager.getCache("inteligenciaPreventiva");
+        cache.clear();
+        try {
+            mvc.perform(get("/api/pets/1/inteligencia-preventiva"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.recomendacoes", org.hamcrest.Matchers.hasItem(
+                            org.hamcrest.Matchers.containsString("Dra. Helena Prado"))));
+
+            mvc.perform(put("/api/funcionarios/1").contentType(MediaType.APPLICATION_JSON).content("""
+                    {"nome":"Dra. Helena Atualizada","setor":"Clinica Geral","cargo":"Veterinaria",
+                     "email":"helena@clyvovet.com.br","telefone":"(11) 3344-1010"}
+                    """))
+                    .andExpect(status().isOk());
+
+            mvc.perform(get("/api/pets/1/inteligencia-preventiva"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.recomendacoes", org.hamcrest.Matchers.hasItem(
+                            org.hamcrest.Matchers.containsString("Dra. Helena Atualizada"))));
+        } finally {
+            cache.clear();
+        }
     }
 
     @Test

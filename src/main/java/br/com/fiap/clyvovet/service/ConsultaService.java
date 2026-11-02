@@ -3,6 +3,7 @@ package br.com.fiap.clyvovet.service;
 import br.com.fiap.clyvovet.dto.ConsultaRequestDTO;
 import br.com.fiap.clyvovet.dto.ConsultaResponseDTO;
 import br.com.fiap.clyvovet.exception.RecursoNaoEncontradoException;
+import br.com.fiap.clyvovet.exception.RegraNegocioException;
 import br.com.fiap.clyvovet.model.Consulta;
 import br.com.fiap.clyvovet.model.Funcionario;
 import br.com.fiap.clyvovet.model.Pet;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -62,6 +64,9 @@ public class ConsultaService {
 
     @Transactional(readOnly = true)
     public List<ConsultaResponseDTO> buscarPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
+        if (inicio.isAfter(fim)) {
+            throw new RegraNegocioException("O início do período não pode ser posterior ao fim");
+        }
         List<Consulta> consultas = escopo.ehAdmin()
                 ? consultaRepository.findByDataBetween(inicio, fim)
                 : consultaRepository.findByDataBetweenAndPetDonoEmail(inicio, fim, escopo.emailDoUsuarioLogado());
@@ -84,13 +89,16 @@ public class ConsultaService {
     @CacheEvict(allEntries = true)
     public ConsultaResponseDTO atualizar(Long id, ConsultaRequestDTO dto) {
         Consulta existente = buscarConsultaPermitida(id);
+        garantirEdicaoPermitida(existente);
         return paraResposta(consultaRepository.save(paraEntidade(dto, existente)));
     }
 
     @Transactional
     @CacheEvict(allEntries = true)
     public void excluir(Long id) {
-        consultaRepository.delete(buscarConsultaPermitida(id));
+        Consulta consulta = buscarConsultaPermitida(id);
+        garantirEdicaoPermitida(consulta);
+        consultaRepository.delete(consulta);
     }
 
     private Consulta buscarConsultaPermitida(Long id) {
@@ -132,6 +140,12 @@ public class ConsultaService {
     }
 
     private Consulta paraEntidade(ConsultaRequestDTO dto, Consulta consulta) {
+        if (!escopo.ehAdmin() && "R".equals(dto.getStatus())) {
+            throw new AccessDeniedException("Apenas a clínica pode registrar uma consulta realizada");
+        }
+        if (!dto.isDataCoerenteComStatus()) {
+            throw new RegraNegocioException("Consulta realizada não pode ter data no futuro");
+        }
         consulta.setData(dto.getData());
         consulta.setTipo(dto.getTipo());
         consulta.setDescricao(dto.getDescricao());
@@ -146,5 +160,11 @@ public class ConsultaService {
         consulta.setFuncionario(funcionario);
 
         return consulta;
+    }
+
+    private void garantirEdicaoPermitida(Consulta consulta) {
+        if (!escopo.ehAdmin() && "R".equals(consulta.getStatus())) {
+            throw new AccessDeniedException("Apenas a clínica pode alterar uma consulta realizada");
+        }
     }
 }

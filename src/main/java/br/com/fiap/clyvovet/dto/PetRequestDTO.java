@@ -1,6 +1,7 @@
 package br.com.fiap.clyvovet.dto;
 
 import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -25,6 +26,7 @@ public class PetRequestDTO {
     @NotNull(message = "Peso é obrigatório")
     @Positive(message = "Peso deve ser maior que zero")
     @DecimalMax(value = "999.99", message = "Peso deve ser menor que 1000 kg")
+    @Digits(integer = 3, fraction = 2, message = "Peso deve ter no máximo duas casas decimais")
     private BigDecimal peso;
 
     @NotBlank(message = "Espécie é obrigatória")
@@ -36,6 +38,7 @@ public class PetRequestDTO {
     private String raca;
 
     @NotNull(message = "Tutor é obrigatório")
+    @Positive(message = "ID do tutor deve ser maior que zero")
     private Long tutorId;
 
     public String getNome() { return nome; } public void setNome(String nome) { this.nome = nome; }

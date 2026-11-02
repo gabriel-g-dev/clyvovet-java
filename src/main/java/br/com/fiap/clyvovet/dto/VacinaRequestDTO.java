@@ -29,6 +29,7 @@ public class VacinaRequestDTO {
     private Integer intervaloReforcoDias;
 
     @NotNull(message = "ID do pet é obrigatório")
+    @Positive(message = "ID do pet deve ser maior que zero")
     private Long petId;
 
     @JsonIgnore

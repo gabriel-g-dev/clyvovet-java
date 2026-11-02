@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * São duas filter chains porque a API e o painel web falham de formas
@@ -42,12 +43,13 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http,
                                               TokenService tokenService,
-                                              UsuarioDetailsService usuarioDetailsService) throws Exception {
+                                              UsuarioDetailsService usuarioDetailsService,
+                                              CorsConfigurationSource corsConfigurationSource) throws Exception {
         TokenAuthFilter tokenAuthFilter = new TokenAuthFilter(tokenService, usuarioDetailsService);
 
         http
             .securityMatcher("/api/**")
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             // Sem cookie de sessão nesta chain não há superfície para CSRF.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -123,17 +125,15 @@ public class SecurityConfig {
     }
 
     /**
-     * Preparado para um cliente Expo: um app nativo não passa por CORS, mas o
-     * Expo Web e o Expo Go rodam em origens http que o navegador barraria.
+     * Clientes web de outra origem exigem uma lista explicita. Aplicativos
+     * nativos nao dependem de CORS; isso nao comprova integracao executada.
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${clyvovet.cors.allowed-origin-patterns:}") String origensPermitidas) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://192.168.*.*:*",
-                "exp://*"));
+        config.setAllowedOriginPatterns(Arrays.stream(origensPermitidas.split(","))
+                .map(String::strip).filter(origem -> !origem.isEmpty()).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
@@ -146,7 +146,16 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder() {
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                // BCrypt considera no maximo 72 bytes, independentemente do numero
+                // de caracteres. Recusar o excedente evita aceitar sufixos ignorados.
+                return rawPassword != null
+                        && rawPassword.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= 72
+                        && super.matches(rawPassword, encodedPassword);
+            }
+        };
     }
 
     @Bean

@@ -18,5 +18,7 @@ server:
         secure: ${CLYVOVET_COOKIE_SECURE:true}
 
 clyvovet:
+  cors:
+    allowed-origin-patterns: ${CLYVOVET_CORS_ORIGINS:}
   jwt:
     secret: ${CLYVOVET_JWT_SECRET}

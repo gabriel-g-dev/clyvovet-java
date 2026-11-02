@@ -76,10 +76,10 @@ public class BaixaVacinaService {
         LocalDate dataProximaDose = dataAplicacao.plusDays(intervalo);
         Long petId = aplicada.getPet().getId();
 
-        boolean jaAgendada = vacinaRepository.existsByPetIdAndNomeAndStatusAndData(
-                petId, aplicada.getNome(), STATUS_PENDENTE, dataProximaDose);
-        if (jaAgendada) {
-            return new BaixaVacinaResultado(aplicada, null, Reforco.JA_AGENDADO);
+        Vacina jaAgendada = vacinaRepository.findFirstByPetIdAndNomeAndStatusAndData(
+                petId, aplicada.getNome(), STATUS_PENDENTE, dataProximaDose).orElse(null);
+        if (jaAgendada != null) {
+            return new BaixaVacinaResultado(aplicada, jaAgendada, Reforco.JA_AGENDADO);
         }
 
         Vacina proximaDose = new Vacina();

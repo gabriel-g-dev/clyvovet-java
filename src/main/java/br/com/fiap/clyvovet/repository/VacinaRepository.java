@@ -21,7 +21,9 @@ public interface VacinaRepository extends JpaRepository<Vacina, Long> {
     List<Vacina> findByStatus(String status);
     List<Vacina> findByNomeContainingIgnoreCase(String nome);
     List<Vacina> findByPetId(Long petId);
-    boolean existsByPetIdAndNomeAndStatusAndData(Long petId, String nome, String status, java.time.LocalDate data);
+    boolean existsByPetIdAndStatus(Long petId, String status);
+    Optional<Vacina> findFirstByPetIdAndNomeAndStatusAndData(Long petId, String nome, String status, java.time.LocalDate data);
+    List<Vacina> findByStatusAndDataBefore(String status, java.time.LocalDate data);
 
     Page<Vacina> findByPetDonoEmail(String email, Pageable pageable);
     List<Vacina> findByStatusAndPetDonoEmail(String status, String email);

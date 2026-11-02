@@ -10,7 +10,7 @@
       "modified": 1716249600000,
       "created": 1716249600000,
       "name": "ClyvoVet Java API",
-      "description": "API REST do ClyvoVet (Spring Boot). Rode 'Login ADMIN' primeiro: copie o token da resposta para a variavel de ambiente 'token'.",
+      "description": "API REST do ClyvoVet. Preencha os campos de acesso do ambiente com as contas de demonstracao documentadas no README. Rode Login ADMIN e copie o token da resposta para a variavel token. Use somente dados ficticios em uma instancia preparada para teste; nao exporte tokens.",
       "scope": "collection",
       "_type": "workspace"
     },
@@ -22,12 +22,26 @@
       "name": "Ambiente Local",
       "data": {
         "base_url": "http://localhost:8080",
-        "token": ""
+        "token": "",
+        "admin_email": "",
+        "admin_password": "",
+        "tutor_email": "",
+        "tutor_password": "",
+        "new_tutor_email": "",
+        "new_tutor_password": "",
+        "new_pet_id": ""
       },
       "dataPropertyOrder": {
         "&": [
           "base_url",
-          "token"
+          "token",
+          "admin_email",
+          "admin_password",
+          "tutor_email",
+          "tutor_password",
+          "new_tutor_email",
+          "new_tutor_password",
+          "new_pet_id"
         ]
       },
       "color": null,
@@ -41,7 +55,7 @@
       "modified": 1716249600000,
       "created": 1716249600000,
       "name": "0. Autenticacao",
-      "description": "Login e emissao do token JWT",
+      "description": "Login com as contas de demonstracao do README e emissao do token JWT",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": -1716249600000,
@@ -58,7 +72,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"admin@clyvovet.com.br\",\n  \"senha\": \"admin123\"\n}"
+        "text": "{\n  \"email\": \"{{ admin_email }}\",\n  \"senha\": \"{{ admin_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -89,7 +103,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"gabriel@clyvovet.com.br\",\n  \"senha\": \"tutor123\"\n}"
+        "text": "{\n  \"email\": \"{{ tutor_email }}\",\n  \"senha\": \"{{ tutor_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -120,7 +134,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"admin@clyvovet.com.br\",\n  \"senha\": \"senha-errada\"\n}"
+        "text": "{\n  \"email\": \"{{ admin_email }}\",\n  \"senha\": \"senha-errada\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -351,7 +365,7 @@
       "parentId": "fld_tutores",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/tutores/email/gabriel@clyvovet.com.br",
+      "url": "{{ base_url }}/api/tutores/email/{{ tutor_email }}",
       "name": "Buscar por e-mail",
       "description": "",
       "method": "GET",
@@ -448,7 +462,7 @@
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Gabriel Oliveira\",\n  \"email\": \"gabriel@clyvovet.com.br\",\n  \"telefone\": \"(11) 98877-0000\"\n}"
+        "text": "{\n  \"nome\": \"Gabriel Oliveira\",\n  \"email\": \"{{ tutor_email }}\",\n  \"telefone\": \"(11) 98877-0000\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -1486,11 +1500,11 @@
       "created": 1716249600000,
       "url": "{{ base_url }}/api/auth/register",
       "name": "Cadastrar tutor (publico)",
-      "description": "Cria o login e o cadastro do tutor na mesma transacao. O perfil e sempre ROLE_TUTOR: mandar role no corpo nao muda nada.",
+      "description": "Opcional: preencha new_tutor_email com um endereco ficticio ainda nao cadastrado e new_tutor_password com senha de 12 a 60 caracteres (ate 72 bytes UTF-8). Cria login e tutor na mesma transacao, sempre ROLE_TUTOR. As contas de demonstracao do README dispensam este cadastro.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Victor Augusto\",\n  \"email\": \"victor@exemplo.com\",\n  \"telefone\": \"(11) 91234-5678\",\n  \"senha\": \"senha123\"\n}"
+        "text": "{\n  \"nome\": \"Victor Augusto\",\n  \"email\": \"{{ new_tutor_email }}\",\n  \"telefone\": \"(11) 91234-5678\",\n  \"senha\": \"{{ new_tutor_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -1521,7 +1535,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Outro\",\n  \"email\": \"victor@exemplo.com\",\n  \"telefone\": \"(11) 90000-0000\",\n  \"senha\": \"senha123\"\n}"
+        "text": "{\n  \"nome\": \"Outro\",\n  \"email\": \"{{ new_tutor_email }}\",\n  \"telefone\": \"(11) 90000-0000\",\n  \"senha\": \"{{ new_tutor_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -1552,7 +1566,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"victor@exemplo.com\",\n  \"senha\": \"senha123\"\n}"
+        "text": "{\n  \"email\": \"{{ new_tutor_email }}\",\n  \"senha\": \"{{ new_tutor_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -1579,7 +1593,7 @@
       "created": 1716249600000,
       "url": "{{ base_url }}/api/pets",
       "name": "Criar pet como TUTOR",
-      "description": "Com token de TUTOR o vinculo e forcado para o proprio usuario, entao o tutorId enviado aqui e ignorado.",
+      "description": "Com o token do tutor recem-cadastrado, o vinculo e forcado para o proprio usuario e tutorId e ignorado. Copie o id da resposta para new_pet_id antes dos exemplos de transferencia e agendamento proprio.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -1778,9 +1792,9 @@
       "parentId": "fld_escopo",
       "modified": 1716249600000,
       "created": 1716249600000,
-      "url": "{{ base_url }}/api/pets/3",
+      "url": "{{ base_url }}/api/pets/{{ new_pet_id }}",
       "name": "Tentar transferir o proprio pet para outro tutor",
-      "description": "O tutorId do corpo e ignorado para o perfil TUTOR: a resposta volta com o tutorId do proprio usuario.",
+      "description": "Use o token do tutor recem-cadastrado e new_pet_id retornado na criacao do seu pet. O tutorId do corpo e ignorado: a resposta preserva o vinculo com o proprio usuario.",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
@@ -1815,11 +1829,11 @@
       "created": 1716249600000,
       "url": "{{ base_url }}/api/consultas",
       "name": "Agendar consulta como TUTOR (sem valor)",
-      "description": "Com token de TUTOR o valor e sempre definido pela clinica: a consulta nasce com valor 0, mesmo que o corpo traga outro numero.",
+      "description": "Use o token do tutor recem-cadastrado e preencha new_pet_id com o id retornado na criacao do seu pet. A consulta nasce com valor 0; o preco e definido pela clinica.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"data\": \"2026-12-01T10:00:00\",\n  \"tipo\": \"Rotina\",\n  \"descricao\": \"Check-up preventivo agendado pelo app\",\n  \"status\": \"A\",\n  \"petId\": 1,\n  \"funcionarioId\": 1\n}"
+        "text": "{\n  \"data\": \"2026-12-01T10:00:00\",\n  \"tipo\": \"Rotina\",\n  \"descricao\": \"Check-up preventivo agendado pelo app\",\n  \"status\": \"A\",\n  \"petId\": {{ new_pet_id }},\n  \"funcionarioId\": 1\n}"
       },
       "parameters": [],
       "headers": [

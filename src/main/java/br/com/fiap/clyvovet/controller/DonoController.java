@@ -101,9 +101,12 @@ public class DonoController {
     @CacheEvict(allEntries = true)
     @Transactional
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!repository.existsById(id))
-            throw new RecursoNaoEncontradoException("Dono não encontrado");
-        repository.deleteById(id);
+        Dono dono = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Dono não encontrado"));
+        if (usuarioRepository.findByEmail(dono.getEmail()).isPresent()) {
+            throw new RegraNegocioException("Este tutor possui um login vinculado e não pode ser excluído por este cadastro");
+        }
+        repository.delete(dono);
         return ResponseEntity.noContent().build();
     }
 

@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -25,7 +27,12 @@ public class TokenService {
 
     public TokenService(@Value("${clyvovet.jwt.secret}") String secretBase64,
                         @Value("${clyvovet.jwt.issuer}") String issuer,
-                        @Value("${clyvovet.jwt.expiration-minutes}") long expiracaoMinutos) {
+                        @Value("${clyvovet.jwt.expiration-minutes}") long expiracaoMinutos,
+                        Environment environment) {
+        if (environment.acceptsProfiles(Profiles.of("demo", "persistente"))
+                && "3ktdFCeznoWf+3hS0xCyRvp9RLw7QzZ17zz3f7zaZOM=".equals(secretBase64)) {
+            throw new IllegalStateException("Configure uma chave JWT própria para publicação.");
+        }
         this.chave = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretBase64));
         this.issuer = issuer;
         this.expiracaoMinutos = expiracaoMinutos;

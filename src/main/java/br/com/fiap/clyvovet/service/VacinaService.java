@@ -80,7 +80,13 @@ public class VacinaService {
     @Transactional
     @CacheEvict(allEntries = true)
     public VacinaResponseDTO atualizar(Long id, VacinaRequestDTO dto) {
-        Vacina existente = buscarVacinaPermitida(id);
+        // A mesma trava da baixa impede uma edição concorrente de desfazer a aplicação.
+        Vacina existente = vacinaRepository.buscarParaAplicacao(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Vacina não encontrada com o ID " + id));
+        escopo.garantirAcessoAoPet(existente.getPet());
+        if (!existente.getStatus().equals(dto.getStatus())) {
+            throw new RegraNegocioException("O status da dose não pode ser alterado pelo cadastro. Para registrar a aplicação, use a baixa da vacina.");
+        }
         return paraResposta(vacinaRepository.save(paraEntidade(dto, existente)));
     }
 

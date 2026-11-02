@@ -8,6 +8,7 @@ import br.com.fiap.clyvovet.model.Funcionario;
 import br.com.fiap.clyvovet.repository.FuncionarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +46,7 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "inteligenciaPreventiva", allEntries = true)
     public ResponseEntity<FuncionarioResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequestDTO dto) {
         if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Funcionário não encontrado");
         Funcionario func = mapToEntity(dto);

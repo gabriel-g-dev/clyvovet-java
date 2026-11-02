@@ -3,6 +3,9 @@ package br.com.fiap.clyvovet.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.nio.charset.StandardCharsets;
 
 /** O perfil não vem do cliente: todo cadastro por aqui é ROLE_TUTOR. */
 public class RegistroRequestDTO {
@@ -21,10 +24,16 @@ public class RegistroRequestDTO {
     private String telefone;
 
     @NotBlank(message = "Senha é obrigatória")
-    @Size(min = 6, max = 60, message = "Senha deve ter entre 6 e 60 caracteres")
+    @Size(min = 12, max = 60, message = "Senha deve ter entre 12 e 60 caracteres")
     private String senha;
 
     public RegistroRequestDTO() {}
+
+    @JsonIgnore
+    @AssertTrue(message = "Senha deve ter no máximo 72 bytes em UTF-8")
+    public boolean isSenhaCompativelComBCrypt() {
+        return senha == null || senha.getBytes(StandardCharsets.UTF_8).length <= 72;
+    }
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }

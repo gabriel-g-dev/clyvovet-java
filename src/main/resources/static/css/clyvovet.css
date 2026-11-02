@@ -19,13 +19,13 @@ button, input, select { font: inherit; }
 .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 28px; }
 .linha { display: flex; align-items: center; gap: 26px; }
 .topo { background: #fff; border-bottom: 1px solid var(--borda); padding: 16px 0; margin-bottom: 36px; }
-.marca { font-weight: 750; font-size: 20px; color: var(--verde); text-decoration: none; white-space: nowrap; }
-.menu { display: flex; align-items: center; gap: 20px; flex: 1; }
+.marca { font-weight: 750; font-size: 20px; color: var(--verde); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+.menu { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 20px; flex: 1; min-width: 0; }
 .menu a { display: inline-flex; align-items: center; min-height: 44px; color: var(--secundario); text-decoration: none; font-size: 14px; border-bottom: 2px solid transparent; }
 .menu a:hover { color: var(--verde); }
 .menu a.ativo { color: var(--verde); font-weight: 650; border-bottom-color: var(--verde); }
 .usuario { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--secundario); min-width: 0; }
-.usuario-nome { max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usuario-nome { min-width: 0; max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .usuario form { margin: 0; flex-shrink: 0; }
 .btn-sair { background: #fff; border: 1px solid var(--borda); border-radius: 7px; min-height: 44px; padding: 7px 13px; cursor: pointer; color: var(--texto); font-size: 13px; }
 .btn-sair:hover { border-color: var(--verde); color: var(--verde); }
@@ -115,9 +115,6 @@ form input[type="hidden"] { display: none; }
 .login-titulo { text-align: center; margin-bottom: 25px; }
 .login-titulo h1 { color: var(--verde); font-size: 30px; }
 .login-titulo .subtitulo { margin-bottom: 0; }
-.credenciais { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--borda); font-size: 12px; color: var(--secundario); }
-.credenciais p { margin: 7px 0; }
-.credenciais code { font-size: 11px; overflow-wrap: anywhere; }
 .rodape-links { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 30px 0 40px; padding-top: 20px; border-top: 1px solid var(--borda); font-size: 12px; color: var(--secundario); }
 .rodape-links a { color: var(--verde); }
 .voltar { display: inline-block; font-size: 13px; margin: 0 0 18px; }
@@ -126,7 +123,7 @@ form input[type="hidden"] { display: none; }
 @media (max-width: 1000px) {
     .topo .linha { flex-wrap: wrap; gap: 10px 24px; }
     .menu { order: 3; flex-basis: 100%; gap: 24px; }
-    .usuario { margin-left: auto; }
+    .usuario { margin-left: auto; flex: 1; justify-content: flex-end; }
 }
 @media (max-width: 700px) {
     .container { padding: 0 18px; }

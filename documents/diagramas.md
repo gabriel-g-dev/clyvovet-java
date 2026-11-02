@@ -4,9 +4,9 @@ Modelagem das entidades, arquitetura macro e desenho do banco da aplicação Spr
 
 ---
 
-## 🏗️ 1. Arquitetura macro
+## 1. Arquitetura macro
 
-A aplicação tem **duas portas de entrada** sobre a mesma camada de domínio: o painel web em Thymeleaf, usado pela clínica, e a API REST com JWT, usada hoje pelo Swagger e pelo Insomnia e preparada para um cliente mobile. O aplicativo Mobile atual do ClyvoVet usa o Supabase e não consome esta API.
+A aplicação tem **duas portas de entrada** sobre a mesma camada de domínio: o painel web em Thymeleaf, usado pela clínica e pelos tutores conforme perfil, e a API REST com JWT. Swagger e Insomnia permitem explorar seus contratos. Esta entrega não comprova consumo da API pelos projetos Mobile ou .NET.
 
 ```mermaid
 graph TD
@@ -40,6 +40,7 @@ graph TD
 | Camada | Responsabilidade |
 | :--- | :--- |
 | **security** | Autenticação (BCrypt na tabela `USUARIOS`), emissão e validação do JWT, e as regras de quem acessa o quê |
+| **config** | Configuração do contrato OpenAPI |
 | **controller** | Recebe a requisição e valida o DTO. Delega os fluxos aos services; os CRUDs auxiliares de tutores, funcionários e medicamentos usam repositories diretamente |
 | **service** | Onde vivem as regras: score preventivo, baixa de vacina com reforço, cadastro de pet, montagem do painel |
 | **repository** | `JpaRepository` com query methods |
@@ -51,7 +52,7 @@ O perfil local e o `demo` usam H2 em memória. O perfil `persistente` usa H2 em 
 
 ---
 
-## 🔐 2. Fluxo de autenticação e autorização
+## 2. Fluxo de autenticação e autorização
 
 ```mermaid
 sequenceDiagram
@@ -81,7 +82,13 @@ sequenceDiagram
 | Pets e consultas | todos | **apenas os seus** |
 | Calendário vacinal | CRUD + baixa | leitura dos seus pets |
 | Funcionários | CRUD | somente leitura |
-| Medicamentos e cadastro de tutores | CRUD | ❌ 403 |
+| Medicamentos e cadastro de tutores | CRUD | acesso negado (403) |
+
+O tutor não pode registrar consultas realizadas nem editar ou excluir esse histórico. Os valores de consulta são definidos pelo ADMIN; o valor enviado pelo TUTOR não substitui o preço existente.
+
+A exclusão de pet pelo TUTOR é bloqueada quando há consulta realizada ou vacina aplicada. A exclusão de tutor com credencial vinculada retorna conflito. A edição de vacina não altera seu status: a baixa é a operação que registra a aplicação e cria o reforço.
+
+As contas de demonstração são carregadas pela migration V2 nos três perfis, com senhas armazenadas como hash BCrypt. As credenciais de acesso estão no [README](../README.md#acesso-para-avaliação). Os perfis `demo` e `persistente` exigem chave JWT própria e desabilitam o console H2. Veja [Deploy](deploy.md).
 
 ### Propriedade do recurso
 
@@ -105,7 +112,7 @@ para o TUTOR o vínculo é sempre o próprio usuário, o que impede transferir u
 
 ---
 
-## 🧬 3. Diagrama de classes
+## 3. Diagrama de classes
 
 ```mermaid
 classDiagram
@@ -193,9 +200,9 @@ classDiagram
 
 ---
 
-## 🛢️ 4. Diagrama Entidade-Relacionamento (DER)
+## 4. Diagrama Entidade-Relacionamento (DER)
 
-Modelo criado por `V1__create_tables.sql` e estendido por `V3__add_intervalo_reforco_vacina.sql`.
+Modelo criado por `V1__create_tables.sql` e estendido por V3 com intervalo de reforço.
 
 ```mermaid
 erDiagram
@@ -284,7 +291,7 @@ erDiagram
 
 ---
 
-## 🔄 5. Os dois fluxos de negócio
+## 5. Os dois fluxos de negócio
 
 ### Fluxo 1 — Inteligência preventiva
 
@@ -295,7 +302,7 @@ flowchart TD
     C -->|Não| C1[-30 pontos]
     C -->|Sim| C2{Alguma atrasada?}
     C2 -->|Sim| C3[-15 por vacina + marca atraso]
-    C2 -->|Vence em 8 dias| C4[Aviso preventivo]
+    C2 -->|Hoje até daqui 7 dias| C4[Aviso preventivo]
     B --> D{Tem consulta realizada<br/>em data não futura?}
     D -->|Não| D1[-30 pontos]
     D -->|Última há mais de 1 ano| D2[-20 pontos]

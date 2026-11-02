@@ -7,12 +7,15 @@ import br.com.fiap.clyvovet.model.Dono;
 import br.com.fiap.clyvovet.model.Pet;
 import br.com.fiap.clyvovet.repository.DonoRepository;
 import br.com.fiap.clyvovet.repository.PetRepository;
+import br.com.fiap.clyvovet.repository.ConsultaRepository;
+import br.com.fiap.clyvovet.repository.VacinaRepository;
 import br.com.fiap.clyvovet.security.EscopoUsuarioService;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,11 +31,16 @@ public class PetService {
     private final PetRepository petRepository;
     private final DonoRepository donoRepository;
     private final EscopoUsuarioService escopo;
+    private final ConsultaRepository consultaRepository;
+    private final VacinaRepository vacinaRepository;
 
-    public PetService(PetRepository petRepository, DonoRepository donoRepository, EscopoUsuarioService escopo) {
+    public PetService(PetRepository petRepository, DonoRepository donoRepository, EscopoUsuarioService escopo,
+                      ConsultaRepository consultaRepository, VacinaRepository vacinaRepository) {
         this.petRepository = petRepository;
         this.donoRepository = donoRepository;
         this.escopo = escopo;
+        this.consultaRepository = consultaRepository;
+        this.vacinaRepository = vacinaRepository;
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +94,12 @@ public class PetService {
     @Transactional
     @CacheEvict(allEntries = true)
     public void excluir(Long id) {
-        petRepository.delete(buscarPetPermitido(id));
+        Pet pet = buscarPetPermitido(id);
+        if (!escopo.ehAdmin() && (consultaRepository.existsByPetIdAndStatus(id, "R")
+                || vacinaRepository.existsByPetIdAndStatus(id, BaixaVacinaService.STATUS_APLICADA))) {
+            throw new AccessDeniedException("Apenas a clínica pode excluir um pet com histórico clínico");
+        }
+        petRepository.delete(pet);
     }
 
     @Transactional(readOnly = true)
