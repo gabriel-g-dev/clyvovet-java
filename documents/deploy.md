@@ -42,7 +42,7 @@ Depois da publicação, confira:
 - `/swagger-ui.html` e `/v3/api-docs`; dados da API exigindo Bearer token.
 - `/h2-console` indisponível, recursos e links carregando corretamente.
 
-O script de navegador aceita somente endereços locais e cria dados. Em 02/11/2026, após timeouts iniciais, as leituras públicas de `/login`, `/health`, `/v3/api-docs` e `/swagger-ui.html` responderam HTTP 200; o health check retornou `UP`. A versão hospedada ainda exibe credenciais na tela de login e precisa receber as alterações locais. Os fluxos autenticados devem ser conferidos após a publicação manual.
+O script de navegador cria dados fictícios e aceita somente endereços locais. Os resultados estão em [Evidências da aplicação](evidencias/README.md).
 
 ## Docker
 

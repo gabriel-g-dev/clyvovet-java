@@ -1,6 +1,7 @@
 package br.com.fiap.clyvovet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +26,7 @@ class ApiRegressaoTest {
     @Autowired private MockMvc mvc;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private CacheManager cacheManager;
+    @Autowired private EntityManager entityManager;
 
     @Test
     void loginJwtRealAutorizaPetDoTutorERejeitaPetDeOutro() throws Exception {
@@ -108,6 +110,35 @@ class ApiRegressaoTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.recomendacoes", org.hamcrest.Matchers.hasItem(
                             org.hamcrest.Matchers.containsString("Dra. Helena Atualizada"))));
+        } finally {
+            cache.clear();
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "admin@clyvovet.com.br", roles = "ADMIN")
+    void exclusaoDeFuncionarioAtualizaAnaliseJaConsultada() throws Exception {
+        var cache = cacheManager.getCache("inteligenciaPreventiva");
+        cache.clear();
+        try {
+            mvc.perform(get("/api/pets/1/inteligencia-preventiva"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.recomendacoes", org.hamcrest.Matchers.hasItem(
+                            org.hamcrest.Matchers.containsString("Dra. Helena Prado"))));
+            entityManager.clear();
+
+            mvc.perform(delete("/api/funcionarios/1"))
+                    .andExpect(status().isNoContent());
+            entityManager.flush();
+            entityManager.clear();
+
+            mvc.perform(get("/api/consultas/pet/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", org.hamcrest.Matchers.empty()));
+            mvc.perform(get("/api/pets/1/inteligencia-preventiva"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.recomendacoes", org.hamcrest.Matchers.hasItem(
+                            org.hamcrest.Matchers.containsString("Nenhuma consulta registrada"))));
         } finally {
             cache.clear();
         }

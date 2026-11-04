@@ -55,6 +55,7 @@ public class FuncionarioController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "inteligenciaPreventiva", allEntries = true)
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repository.existsById(id)) throw new RecursoNaoEncontradoException("Funcionário não encontrado");
         repository.deleteById(id);
