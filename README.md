@@ -142,4 +142,4 @@ Os projetos .NET e Mobile têm implementações próprias. Não há consumo dest
 
 ## Apresentação
 
-**Vídeo: pendente de gravação.** Todos os integrantes devem participar, com duração máxima de 15 minutos. O link será incluído após a gravação.
+**Vídeo:https://youtu.be/qYahQt3wIno
